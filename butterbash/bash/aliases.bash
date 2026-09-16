@@ -94,8 +94,8 @@ alias gclone='git clone'
 # ============================================================================
 # EDITORS AND CONFIG
 # ============================================================================
-alias v='nvim'
-alias vv='nvim .'
+alias v='codium'
+alias vv='codium .'
 alias e='micro'
 alias n='nano'
 

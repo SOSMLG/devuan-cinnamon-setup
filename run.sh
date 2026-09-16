@@ -2,22 +2,30 @@
 # ==========================================
 # 🌿  Devuan Cinnamon Setup — Ordered Runner
 # Post-install polish for a Devuan box where Cinnamon is
-# already installed by the distro's own installer (task-cinnamon-desktop).
-# Aims for an LMDE 7 "Gigi"-like feel — Mint-Y look, sane
-# defaults, an update notifier, Timeshift — while staying
-# lighter than LMDE and native to Devuan's OpenRC init.
+# already installed by the distro's own installer
+# (task-cinnamon-desktop). Aims for an LMDE 7 "Gigi"-like
+# feel with a lean, full-fledged Cinnamon experience, native
+# to Devuan's OpenRC init.
 #
-# Runs setup scripts in the order defined below, asks Y/N per
-# script with a default value. Same runner pattern as
-# devuan-kde-setup / DebianSway.
+# Deterministic: runs the 10 consolidated scripts straight
+# through — nothing prompts, everything is idempotent and
+# safe to re-run. Order matters (01 updates first, 04 themes
+# the apps that 06+ finish wiring up).
+#
+# Usage:
+#   bash run.sh                # run everything
+#   bash run.sh --yes          # same as above (DEBSWAY_ASSUME_YES=1, default)
+#   bash run.sh --list         # just show the ordered steps
+#   bash run.sh --only 05      # run a single script by number
+#   bash run.sh --no-update    # skip apt-get update up front
+#   bash run.sh --verify       # run scripts/verifySetup.sh afterwards
+#   bash run.sh --backup       # run scripts/configBackup.sh first
 # ==========================================
 
 set -uo pipefail
-# NOTE: intentionally not using `set -e` — one script failing (say, a
-# flaky download in installFonts.sh) shouldn't abort every later step.
-# Each script is expected to exit non-zero on failure so this runner
-# can report it and keep going.
-
+# NOTE: intentionally not using `set -e` — one script failing (say, a flaky
+# download in an installer step) shouldn't abort every later step. Each
+# script exits non-zero on failure so this runner can report it and carry on.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS_DIR="$SCRIPT_DIR/scripts"
 
@@ -25,14 +33,40 @@ SCRIPTS_DIR="$SCRIPT_DIR/scripts"
 source "$SCRIPT_DIR/lib/common.sh"
 
 # --- Refuse to run as root directly ---
-# Per-user state (Firefox profile, ~/.bashrc, Cinnamon/dconf settings,
-# ~/.local/bin) must land in the real user's $HOME, not /root. Scripts
-# call sudo themselves for the bits that need it.
+# Per-user state (Firefox profile, ~/.zshrc, Cinnamon/dconf settings,
+# ~/.local/bin) must land in the real user's $HOME, not /root. Scripts call
+# sudo themselves for the parts that need it.
 if [ "$(id -u)" -eq 0 ] && [ -z "${SUDO_USER:-}" ]; then
     echo -e "${RED}Please run this as your normal user, not as root / sudo bash run.sh.${NC}"
     echo -e "${YELLOW}Each script will call sudo itself for the parts that need it.${NC}"
     exit 1
 fi
+
+# --- Flags ---
+SHOW_LIST=0
+ONLY=""
+RUN_VERIFY=0
+RUN_BACKUP=0
+prev=""
+for arg in "$@"; do
+    if [ "$prev" = "--only" ]; then
+        ONLY="$arg"
+        prev=""
+        continue
+    fi
+    case "$arg" in
+        --list)      SHOW_LIST=1 ;;
+        --verify)    RUN_VERIFY=1 ;;
+        --backup)    RUN_BACKUP=1 ;;
+        --only=*)    ONLY="${arg#--only=}" ;;
+        --only)      : ;;  # value comes in next arg
+        --yes)       export DEBSWAY_ASSUME_YES=1 ;;
+        --no-update) export DEBSWAY_SKIP_APT_UPDATE=1 ;;
+        --no-verify) RUN_VERIFY=0 ;;
+        *) echo -e "${YELLOW}Unknown flag: $arg${NC}" ;;
+    esac
+    prev="$arg"
+done
 
 # --- Distro check (Devuan or Debian; both ship /etc/debian_version) ---
 if [ -f /etc/devuan_version ]; then
@@ -46,113 +80,153 @@ else
 fi
 
 # --- Init system check ---
-INIT="$(init_system)"
-case "$INIT" in
-    openrc)   echo -e "${GREEN}Init system: OpenRC (native rc-service/rc-update will be used)${NC}" ;;
-    systemd)  echo -e "${YELLOW}Init system: systemd (this toolkit is written for OpenRC, but will adapt)${NC}" ;;
+case "$(init_system)" in
+    openrc)  echo -e "${GREEN}Init system: OpenRC (rc-service/rc-update will be used)${NC}" ;;
+    systemd) echo -e "${YELLOW}Init system: systemd (written for OpenRC, but adapts)${NC}" ;;
     sysvinit) echo -e "${YELLOW}Init system: sysvinit fallback (service/update-rc.d will be used)${NC}" ;;
 esac
 
-# --- Desktop check (best-effort, informational only — never blocks) ---
-if command_exists cinnamon-session || [ -n "${XDG_CURRENT_DESKTOP:-}" ] && [[ "${XDG_CURRENT_DESKTOP,,}" == *cinnamon* ]]; then
+# --- Desktop check (informational only) ---
+if command_exists cinnamon-session \
+    || [ -n "${XDG_CURRENT_DESKTOP:-}" ] && [[ "${XDG_CURRENT_DESKTOP,,}" == *cinnamon* ]]; then
     echo -e "${GREEN}Cinnamon detected.${NC}"
 else
-    echo -e "${YELLOW}Cinnamon not detected in this session — that's fine if you're running this over SSH before first login, but the theming/hotkey/mint-look steps need an active Cinnamon session to apply.${NC}"
+    echo -e "${YELLOW}Cinnamon not detected in this session — fine over SSH before first login, but"
+    echo -e "${YELLOW}the desktop/preferences steps (04, 05, 09) need an active Cinnamon session to apply.${NC}"
 fi
 
 echo
 
-# --- Ordered list: "script|description|default" ---
+# --- Ordered list: "script|description" ---
 SCRIPTS=(
-    "systemUpdate.sh|Refresh package lists and install available updates before anything else|Y"
-    "addUserToGroups.sh|Add your user to input/video/render groups (needed for touchpad + GPU accel fixes)|Y"
-    "cinnamonDebloat.sh|Debloat Cinnamon's default task install (Warpinator noise, redundant editors, Hexchat, etc.) toward a minimal-but-functional install|Y"
-    "touchpadTrackpointFix.sh|Apply touchpad/trackpoint polling + libinput fixes|Y"
-    "hardwareSupport.sh|Install WiFi/Bluetooth firmware, CPU microcode, and fwupd firmware updates|Y"
-    "multimediaCodecs.sh|Install audio/video codecs + DVD playback support|Y"
-    "firefoxHarden.sh|Install & harden Firefox ESR with Betterfox + privacy policies|Y"
-    "installFonts.sh|Install Noto, Font Awesome, and JetBrainsMono Nerd Font|Y"
-    "terminalButterbash.sh|Install ButterBash for a more functional terminal|Y"
-    "fastfetchConfig.sh|Install fastfetch + curated config presets|Y"
-    "usefulApps.sh|Install VLC, archive support, Nemo thumbnailers, and a few small utilities|Y"
-    "mintLook.sh|Apply an LMDE-like look: Mint-Y theme/icons, wallpaper, panel layout, Nemo tweaks|Y"
-    "fancyCinnamon.sh|Font, Cinnamon Maximus, Blur, gTile, panel applets, Night Light, and other video-inspired polish|Y"
-    "nemoActions.sh|Add right-click actions: Compress PDF/Image, Open in VS Code/OpenCode|Y"
-    "desktopEssentials.sh|Set up Flatpak, printing, GParted, and a firewall panel (Nemo/Cinnamon-native)|Y"
-    "updateNotifier.sh|Install a lightweight Mint-Update-style update checker (cron-based, no systemd needed)|Y"
-    "ssdTrim.sh|Enable weekly SSD TRIM via cron (safe no-op on non-SSD drives)|Y"
-    "timeshiftSetup.sh|Install Timeshift for system snapshots/restore|Y"
-    "hotkeys.sh|Set up Mint/ohmydebn-inspired Cinnamon keyboard shortcuts|Y"
-    "aiOpencode.sh|Install OpenCode AI coding agent + hotkey + system skill file (from ohmydebn)|Y"
-    "devToolsExtras.sh|(optional) Install curated dev extras: btop, eza, bat, zoxide check, Neovim+lazy.nvim, KeePassXC|N"
-    "themePacks.sh|(optional) Install a few extra Cinnamon theme/icon packs + a theme-picker script (ohmydebn-inspired)|N"
-    "installPhotogimp.sh|(optional) Install GIMP + PhotoGIMP's Photoshop-like layout/theme|N"
-    "installVscodium.sh|(optional) Install VSCodium editor|N"
-    "vscodiumDevSetup.sh|(optional) Configure VSCodium for C++/Python development|N"
-    "gamingSetup.sh|(optional) Install Heroic Games Launcher / Steam / Wine|N"
-    "vesktopTelegram.sh|(optional) Install Vesktop (Discord client) / Telegram|N"
+    "01-systemSetup.sh|Update everything, add user to input/video/render, weekly SSD trim, Timeshift"
+    "02-debloat.sh|Remove Warpinator, HexChat, GNOME extras, games; disable Tracker; autoremove"
+    "03-hardwareCodecs.sh|WiFi/Bluetooth firmware, CPU microcode, fwupd, media codecs, touchpad fixes"
+    "04-theme.sh|Mint-Y base + Catppuccin Mocha palette across the desktop and every themed app"
+    "05-cinnamonSetup.sh|Cinnamon extensions, applets, custom hotkeys, polish, Nemo right-click actions"
+    "06-cliStack.sh|ButterBash, fonts (Noto/Nerd/Inter), zsh + starship + gnome-terminal, fastfetch, dev extras"
+    "07-apps.sh|Flatpak/Flathub + software center, printing, GParted, firewall panel, VLC, qBit, TLP, Vesktop, Telegram"
+    "08-firefox.sh|Install & harden Firefox ESR with Betterfox user.js + privacy policies"
+    "09-updateSystem.sh|Cron update notifier + themed GTK update window + Devuan Menu (Super+M)"
+    "10-aiAgents.sh|OpenCode agent + VSCodium, Super+A hotkey, system skill file"
 )
+
+show_list() {
+    for i in "${!SCRIPTS[@]}"; do
+        ENTRY="${SCRIPTS[$i]}"
+        SCRIPT="${ENTRY%%|*}"
+        DESC="${ENTRY#*|}"
+        printf "  %2d  %-24s %s\n" "$((i + 1))" "$SCRIPT" "$DESC"
+    done
+}
+
+if [ "$SHOW_LIST" -eq 1 ]; then
+    echo -e "${BLUE}Devuan Cinnamon Setup — ordered steps:${NC}"
+    show_list
+    echo
+    echo -e "${YELLOW}Run everything with: bash run.sh${NC}"
+    exit 0
+fi
+
+# --- State log (used by verifySetup.sh + documentation) ---
+STATE_DIR="$HOME/.local/state/devuan-cinnamon-setup"
+mkdir -p "$STATE_DIR"
+STATE_LOG="$STATE_DIR/last-run.log"
+record_run() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$STATE_LOG"
+}
+record_run "run.sh start (flags: $*) init=$(init_system)"
+
+FAILED=()
+
+# --- Single up-front apt refresh ---
+# One refresh before any step runs, then flip DEBSWAY_SKIP_APT_UPDATE so the
+# scripts' own apt_update() calls (and any --only run) skip straight to work
+# instead of re-refreshing ~15 times.
+if [ "${DEBSWAY_SKIP_APT_UPDATE:-0}" != "1" ]; then
+    apt_update
+fi
+
+# --- Optional config backup (before any changes) ---
+if [ "$RUN_BACKUP" -eq 1 ]; then
+    echo -e "${YELLOW}▶ scripts/configBackup.sh${NC}"
+    if bash "$SCRIPTS_DIR/configBackup.sh"; then
+        echo -e "${GREEN}   ✅ Config backup done.${NC}\n"
+        record_run "config backup done"
+    else
+        echo -e "${RED}   ❌ configBackup.sh failed (continuing)${NC}\n"
+        FAILED+=("configBackup.sh")
+    fi
+fi
 
 echo -e "${BLUE}=========================================================${NC}"
 echo -e "${BLUE}   Devuan Cinnamon Setup — LMDE energy, OpenRC bones${NC}"
-echo -e "${BLUE}=========================================================${NC}\n"
+echo -e "${BLUE}=========================================================${NC}"
+echo -e "${GREEN}Running $([ -n "$ONLY" ] && echo "script $ONLY" || echo "all ${#SCRIPTS[@]} steps")${NC}"
+echo
 
-FAILED=()
-SKIPPED=()
-
-for ENTRY in "${SCRIPTS[@]}"; do
-    SCRIPT="${ENTRY%%|*}"
-    REST="${ENTRY#*|}"
-    DESC="${REST%%|*}"
-    DEFAULT="${REST##*|}"
-    SCRIPT_PATH="$SCRIPTS_DIR/$SCRIPT"
-
-    echo -e "${YELLOW}▶ ${SCRIPT}${NC}"
-    echo -e "   ${CYAN}${DESC}${NC}"
-
-    if [ ! -f "$SCRIPT_PATH" ]; then
-        echo -e "${RED}   ❌ Script not found: $SCRIPT_PATH${NC}\n"
-        FAILED+=("$SCRIPT (missing)")
-        continue
+run_script() {
+    local script="$1"
+    local path="$SCRIPTS_DIR/$script"
+    echo -e "${YELLOW}▶ $script${NC}"
+    if [ ! -f "$path" ]; then
+        echo -e "${RED}   ❌ Script not found: $path${NC}\n"
+        FAILED+=("$script (missing)")
+        record_run "FAIL script-not-found: $script"
+        return
     fi
+    if bash "$path"; then
+        echo -e "${GREEN}   ✅ Done: $script${NC}\n"
+        record_run "OK  $script"
+    else
+        echo -e "${RED}   ❌ $script exited with an error (continuing)${NC}\n"
+        FAILED+=("$script")
+        record_run "FAIL $script"
+    fi
+}
 
-    DEFAULT=${DEFAULT^^}
-    PROMPT="   ➤ Run this script? (y/N): "
-    [ "$DEFAULT" == "Y" ] && PROMPT="   ➤ Run this script? (Y/n): "
-
-    read -rp "$PROMPT" ANSWER
-    ANSWER=${ANSWER:-$DEFAULT}
-    echo
-
-    case "${ANSWER^^}" in
-        Y)
-            echo -e "${GREEN}   ✅ Running $SCRIPT...${NC}"
-            if bash "$SCRIPT_PATH"; then
-                echo -e "${GREEN}   ✅ Done: $SCRIPT${NC}\n"
-            else
-                echo -e "${RED}   ❌ $SCRIPT exited with an error (continuing with the rest)${NC}\n"
-                FAILED+=("$SCRIPT")
-            fi
-            ;;
-        *)
-            echo -e "${YELLOW}   ⚠ Skipped: $SCRIPT${NC}\n"
-            SKIPPED+=("$SCRIPT")
-            ;;
-    esac
-done
+if [ -n "$ONLY" ]; then
+    # Match "$ONLY" against a leading number in the script name (e.g. 5, 05, "05-cinnamonSetup.sh")
+    matched=0
+    for i in "${!SCRIPTS[@]}"; do
+        ENTRY="${SCRIPTS[$i]}"
+        SCRIPT="${ENTRY%%|*}"
+        NUM="${SCRIPT%%-*}"
+        if [ "$NUM" = "$ONLY" ] || [[ "$SCRIPT" == "$ONLY"* ]]; then
+            run_script "$SCRIPT"
+            matched=1
+            break
+        fi
+    done
+    [ "$matched" -eq 0 ] && { echo -e "${RED}No script matches '$ONLY'. Use --list to see the step numbers.${NC}"; exit 1; }
+else
+    for ENTRY in "${SCRIPTS[@]}"; do
+        run_script "${ENTRY%%|*}"
+    done
+fi
 
 echo -e "${BLUE}=========================================================${NC}"
 echo -e "${BLUE}   🏁 All tasks processed.${NC}"
 echo -e "${BLUE}=========================================================${NC}"
 
-if [ "${#SKIPPED[@]}" -gt 0 ]; then
-    echo -e "${YELLOW}Skipped: ${SKIPPED[*]}${NC}"
+# --- Optional verification pass (end-state audit) ---
+if [ "$RUN_VERIFY" -eq 1 ] && [ -f "$SCRIPTS_DIR/verifySetup.sh" ]; then
+    echo -e "${YELLOW}▶ scripts/verifySetup.sh${NC}"
+    if bash "$SCRIPTS_DIR/verifySetup.sh"; then
+        echo -e "${GREEN}   ✅ Verification passed.${NC}\n"
+        record_run "verify: passed"
+    else
+        echo -e "${RED}   ⚠ Verification found issues (see above).${NC}\n"
+        record_run "verify: issues found"
+    fi
 fi
 
 if [ "${#FAILED[@]}" -gt 0 ]; then
     echo -e "${RED}Failed:  ${FAILED[*]}${NC}"
-    echo -e "${YELLOW}Re-run individual scripts directly with: bash scripts/<name>.sh${NC}"
+    echo -e "${YELLOW}Re-run individual scripts with: bash scripts/<name>.sh${NC}"
+    record_run "run.sh end: FAILED=${FAILED[*]}"
     exit 1
 fi
 
-echo -e "${GREEN}Done. A logout/reboot is recommended (group membership, theme, and panel changes all benefit from a fresh session).${NC}"
+record_run "run.sh end: all OK"
+echo -e "${GREEN}Done. A logout/reboot is recommended (groups, theme, compositor, shell all benefit from a fresh session).${NC}"
