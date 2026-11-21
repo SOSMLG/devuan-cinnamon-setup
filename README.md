@@ -1,5 +1,10 @@
 # devuan-cinnamon-setup
 
+![Devuan](https://img.shields.io/badge/Devuan-supported-9B183E?logo=devuan&logoColor=white)
+![Cinnamon](https://img.shields.io/badge/Desktop-Cinnamon-3B8EE9?logo=linuxmint&logoColor=white)
+![OpenRC](https://img.shields.io/badge/Init-OpenRC-4EAA25)
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+
 Post-install polish for a Devuan box where **Cinnamon is already installed**
 by the distro's own installer (`task-cinnamon-desktop`). This does *not*
 install Cinnamon — it takes a stock Devuan Cinnamon desktop past
@@ -197,6 +202,15 @@ script ever calls `systemctl` directly.
 | `CONFIG_BACKUP_DIR=/path` | where `scripts/configBackup.sh` writes its archive (default: `$HOME`) |
 | `BETTERFOX_TAG=150.0` | pinned Betterfox tag used by 08 |
 
+## Verification
+
+```bash
+bash scripts/verifySetup.sh
+```
+
+The verifier is read-only. It reports the expected packages, configs, services
+and theme markers, and exits nonzero when a required item is missing.
+
 ## Notes
 
 - Nothing auto-enables a firewall deny rule or adds a third-party APT repo.
@@ -212,7 +226,7 @@ script ever calls `systemctl` directly.
 ## Attribution
 
 - Runner/script-structure pattern: DebianSway, via this author's own
-  [devuan-kde-setup](.).
+  [Devuan-Kde](https://github.com/SOSMLG/Devuan-Kde).
 - AI tooling, the update-window concept, the GTK picker styling, the menu,
   Cinnamon polish hints, and curated dev extras: adapted from
   [OhMyDebn](https://github.com/dougburks/ohmydebn) by Doug Burks (MIT
@@ -232,3 +246,17 @@ script ever calls `systemctl` directly.
   via [harden_firefox.sh (Butterbian)](https://github.com/justaguylinux/butterscripts)
   and the tonybanters/tonarchy concept.
 - ButterBash: bundled from its own upstream repo (see `butterbash/`).
+
+---
+
+## License
+
+MIT. See [LICENSE](LICENSE). Vendored components keep their own license files.
+
+## Related repos
+
+- [DebianSway](https://github.com/SOSMLG/DebianSway): Sway on Debian/Devuan.
+- [DevuanSway](https://github.com/SOSMLG/DevuanSway): Sway on Devuan with OpenRC.
+- [Devuan-Kde](https://github.com/SOSMLG/Devuan-Kde): KDE Plasma on Devuan.
+- [DevuanDwm](https://github.com/SOSMLG/DevuanDwm): minimal dwm desktop for Devuan.
+- [XfceMlg](https://github.com/SOSMLG/XfceMlg): XFCE desktop toolkit.
