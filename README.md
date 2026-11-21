@@ -1,16 +1,16 @@
 # devuan-cinnamon-setup
 
-![Devuan](https://img.shields.io/badge/Devuan-supported-9B183E?logo=devuan&logoColor=white)
-![Cinnamon](https://img.shields.io/badge/Desktop-Cinnamon-3B8EE9?logo=linuxmint&logoColor=white)
-![OpenRC](https://img.shields.io/badge/Init-OpenRC-4EAA25)
-![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+![Devuan](https://img.shields.io/badge/Devuan-supported-202329?logo=devuan&logoColor=E8A33D)
+![Cinnamon](https://img.shields.io/badge/Desktop-Cinnamon-202329?logo=linuxmint&logoColor=E8A33D)
+![OpenRC](https://img.shields.io/badge/Init-OpenRC-202329)
+![License: MIT](https://img.shields.io/badge/License-MIT-8FB57A.svg)
 
 Post-install polish for a Devuan box where **Cinnamon is already installed**
 by the distro's own installer (`task-cinnamon-desktop`). This does *not*
 install Cinnamon — it takes a stock Devuan Cinnamon desktop past
 **LMDE "Gigi"-like** defaults (Mint-Y base, leaner package set, Timeshift
 safety net, cron-based update notifier instead of Mint's Update Manager)
-and into a **Catppuccin Mocha** identity with ohmydebn-style power-user
+and into a **Graphite Amber** identity with ohmydebn-style power-user
 conveniences — a themed GTK update window, a searchable Super+M launcher,
 a zsh + starship + gnome-terminal stack, harden Firefox ESR, and
 terminal-AI agents on hand — all **native to Devuan's OpenRC** init, with
@@ -41,16 +41,16 @@ devuan-cinnamon-setup/
 │   ├── apply-burnmywindows-settings.py  # pre-writes Burn My Windows (Glide) settings.json
 │   └── apply-blur-cinnamon-settings.py  # pre-writes Blur Cinnamon settings.json
 ├── config/
-│   ├── palette/catppuccin-mocha.toml   # single source of truth: the semantic palette
+│   ├── palette/graphite-amber.toml      # single source of truth: the semantic palette
 │   ├── templates/*.tpl                  # {{ key }}-templated themes: btop, starship, fastfetch
-│   ├── eza/theme.yml                    # Catppuccin eza colorscheme
-│   ├── bat/themes/Catppuccin Mocha.tmTheme  # bat/Catppuccin syntax theme
+│   ├── eza/theme.yml                    # Graphite Amber eza colorscheme
+│   ├── bat/themes/Graphite Amber.tmTheme     # bat/Graphite Amber syntax theme
 │   └── menu/devuan-menu.py              # the Super+M power-user launcher
 ├── scripts/
 │   ├── 01-systemSetup.sh         # update everything, user groups, weekly SSD trim, Timeshift
 │   ├── 02-debloat.sh             # trim Warpinator/HexChat/GNOME extras/games, disable Tracker
 │   ├── 03-hardwareCodecs.sh      # firmware, CPU microcode, fwupd, media codecs, touchpad fixes
-│   ├── 04-theme.sh               # Mint-Y base + Catppuccin Mocha desktop + app themes + picker
+│   ├── 04-theme.sh               # Mint-Y base + Graphite Amber desktop + app themes + picker
 │   ├── 05-cinnamonSetup.sh       # extensions, applets, hotkeys, polish, Nemo right-click actions
 │   ├── 06-cliStack.sh            # ButterBash, fonts, zsh+starship+gnome-terminal, fastfetch, dev extras
 │   ├── 07-apps.sh                # Flatpak center, printing, GParted, firewall, VLC, qBit, TLP, Vesktop, Telegram
@@ -112,17 +112,15 @@ GStreamer set + `libdvd-pkg` (builds libdvdcss non-interactively under a
 + a safe libinput Xorg snippet (tap-to-click on, natural scroll off).
 
 **04 Theme** — Mint-Y icons from Debian's repo + Mint-Y theme built from
-upstream source (no Mint repo is ever added), Bibata cursor + Arc/Papirus/
+upstream source (no Mint repo is ever added), stock Adwaita cursor + Arc/Papirus/
 Materia packs, and a `Ctrl+Super+T` theme-picker. Then the identity pass:
-Mint-Y-Dark shell + `prefer-dark` (incl. portal keys), Papirus-Dark icons,
-a locally generated Catppuccin gradient wallpaper, and the **palette
-rendered into every themed app** (gnome-terminal, btop, bat, eza, starship,
-fastfetch) from `config/palette/catppuccin-mocha.toml` via
-`lib/theme_render.py`. The shell/GTK/window chrome itself is the
-Cinnamon-capable **Catppuccin Mocha-Red** theme (built from
-Fausto-Korpsvart's Catppuccin-GTK-Theme, Red accent), so the desktop
-chrome matches the app layer. Persists the palette + `picker.colors` for
-the update GUI and menu.
+a stock dark GTK/Cinnamon base + `prefer-dark` (incl. portal keys),
+Papirus-Dark icons, a locally generated graphite/amber gradient wallpaper,
+and the **palette rendered into every themed app** (gnome-terminal, btop,
+bat, eza, starship, fastfetch) from `config/palette/graphite-amber.toml` via
+`lib/theme_render.py`. No third-party GTK theme is downloaded; the graphite
++ amber identity lives in the palette and app colorCustomizations. Persists
+the palette + `picker.colors` for the update GUI and menu.
 
 **05 Cinnamon Setup** ★ — verified Spices from the official
 cinnamon-spices repos: Maximus (hide titlebar on maximize), Blur Cinnamon,
@@ -144,7 +142,7 @@ release with a pinned fallback, fontconfig prefs, and the Inter UI font
 applied as the desktop font); the power-user shell (zsh + Oh My Zsh +
 autosuggestions + syntax-highlighting + starship, `chsh` to zsh,
 gnome-terminal set as system + Cinnamon default terminal with the
-Catppuccin Mocha profile (Alacritty, if a previous run installed it, is
+Graphite Amber profile (Alacritty, if a previous run installed it, is
 purged); dev extras (btop, eza, bat,
 zoxide, KeePassXC — no Neovim/LazyVim, dropped as too-heavy); fastfetch +
 curated presets.
@@ -167,7 +165,7 @@ if present, is hardened too. `BETTERFOX_TAG` overrides the pinned tag.
 **09 Update System** ★ — a cron checker (09:00 + 18:00) that pops a
 notification with a clickable **Update now** action (no systemd timers —
 cron is init-agnostic; DISPLAY/DBus are auto-detected at run time), the
-Catppuccin-themed GTK3 update window with an embedded VTE terminal that
+Graphite Amber themed GTK3 update window with an embedded VTE terminal that
 runs the real `apt-get full-upgrade` (the pretty layer never performs the
 update itself; the button stays busy until the pty exits and notifies on
 completion), the **Devuan Menu** — a searchable, theme-aware power-user
@@ -178,7 +176,7 @@ fresh install's user once, offering a first update + Timeshift setup
 
 **10 AI Agents** ★ — [OpenCode](https://opencode.ai) (official installer,
 npm fallback) and VSCodium (official APT repo — telemetry-free VS Code,
-with a C++/Python toolchain + Catppuccin Mocha theme) with their shells on
+with a C++/Python toolchain + Graphite Amber theme) with their shells on
 PATH, `Super+A` → open a terminal running OpenCode, and the system
 skill file copied to `~/.config/opencode/AGENTS.md` + `~/AGENTS.md` so
 either agent knows this is a Devuan/OpenRC/Cinnamon box. Run
@@ -233,8 +231,8 @@ and theme markers, and exits nonzero when a required item is missing.
   licensed) — a systemd+Cinnamon "power user" desktop with AI, containers,
   and VMs built in; this toolkit borrows the parts that fit an OpenRC,
   lighter scope and leaves the rest out.
-- Palette + bat/eza theme files: [Catppuccin](https://github.com/catppuccin)
-  (Mocha; bundled under permissive licensing).
+- Palette + bat/eza theme files: Graphite Amber, maintained locally for this
+  toolkit (no third-party theme download).
 - Mint-Y/Mint-X icons + mint-themes source: [Linux Mint](https://linuxmint.com/)
    [linuxmint on GitHub](https://github.com/linuxmint), packaged for Debian
   by the Debian Cinnamon Team.
@@ -262,4 +260,4 @@ MIT. See [LICENSE](LICENSE). Vendored components keep their own license files.
 - [XfceMlg](https://github.com/SOSMLG/XfceMlg): XFCE desktop toolkit.
 ## Repository standard
 
-This repo follows the SOSMLG standard: [contributing](CONTRIBUTING.md), [security](SECURITY.md), [changelog](CHANGELOG.md). Local workflow: [English guide](https://github.com/SOSMLG/.github/blob/main/docs/GIT_GUIDE.md) / [Arabic guide](https://github.com/SOSMLG/.github/blob/main/docs/GIT_GUIDE.ar.md).
+This repo follows the SOSMLG standard: [contributing](CONTRIBUTING.md), [security](SECURITY.md), [changelog](CHANGELOG.md). Local workflow: [English guide](https://github.com/SOSMLG/.github/blob/main/docs/GIT_GUIDE.md) / [Arabic guide](https://github.com/SOSMLG/.github/blob/main/docs/GIT_GUIDE.ar.md). Visual standard: [theme](https://github.com/SOSMLG/.github/blob/main/docs/THEME.md) / [الطابع البصري](https://github.com/SOSMLG/.github/blob/main/docs/THEME.ar.md).

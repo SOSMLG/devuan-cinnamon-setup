@@ -13,7 +13,7 @@ Goals (all schema-validated):
   * popup menus      ON  — blurred applet/panel/title context menus
   * overview / expo  ON  — blurred overview + expo
   * alt-tab          ON  — blurred application switcher
-  * dimming overlay  rgb(30,30,46) (#1e1e2e Mocha base) at 40%
+  * dimming overlay  rgb(22,24,29) (#16181D graphite canvas) at 40%
   * blur radius      12, Dual Kawase dynamic (gentle on GPUs)
 
 Prints OK on success, FAILED + exit 1 on any hard error.
@@ -41,7 +41,7 @@ OVERRIDES = {
     "allow-transparent-color-popup": True,
     "allow-transparent-color-switcher": True,
     "opacity": 40,
-    "blendColor": "rgb(30,30,46)",
+    "blendColor": "rgb(22,24,29)",
     "blurType": 8,          # Dual Kawase dynamic
     "radius": 12,
     "saturation": 100,

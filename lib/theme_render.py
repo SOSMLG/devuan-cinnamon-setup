@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-lib/theme_render.py — read a semantic Catppuccin-compatible palette TOML,
+lib/theme_render.py - read a semantic Graphite Amber palette TOML,
 derive ANSI color0-15 + cursor + selection + accent_ansi aliases, then
 render {{ key }} templates.
 
@@ -35,14 +35,14 @@ def _hex_to_rgb(h: str) -> tuple[int, int, int]:
 def _derive(pal: dict[str, str]) -> dict[str, str]:
     """Add legacy ANSI color0-15, cursor, selection, accent_ansi, rgb, ansi."""
     out = dict(pal)  # keep semantic keys too
-    fg = pal.get("foreground", "#cdd6f4")
+    fg = pal.get("foreground", "#D8D3C8")
     bf = pal.get("bright_foreground", fg)
     muted = pal.get("muted", pal.get("dark_foreground", fg))
     sel = pal.get("selection", muted)
     accent = pal.get("accent", pal.get("blue", fg))
     bg = pal.get("background", "#000000")
 
-    # ANSI colorN map (Catppuccin standard mapping)
+    # ANSI colorN map (Graphite Amber semantic mapping)
     out["color0"] = bg
     out["color1"] = pal.get("red", fg)
     out["color2"] = pal.get("green", fg)

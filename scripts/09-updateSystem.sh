@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # =======================================================
-# 09 Update System — notifier, themed update GUI, and the Devuan Menu
+# 09 Update System - notifier, themed update GUI, and the Devuan Menu
 # -------------------------------------------------------
 # Merges the old updateNotifier.sh / updateGui.sh / ohmydebnMenu.sh:
 #   * a cron-backed checker (runs 09:00 + 18:00, init-agnostic) that pops
 #     a notification with a clickable "Update now" action
-#   * a Catppuccin-themed GTK3 window with an embedded VTE terminal that
+#   * a Graphite Amber themed GTK3 window with an embedded VTE terminal that
 #     runs the update for you (the pretty layer never performs the update
-#     itself — it spawns real apt commands in a real pty)
-#   * devuan-menu — a searchable, theme-aware power-user launcher (Apps /
+#     itself - it spawns real apt commands in a real pty)
+#   * devuan-menu - a searchable, theme-aware power-user launcher (Apps /
 #     AI / Terminals / Editors / Update / System) bound to Super+M
-# No systemd timers anywhere — cron + notify-send only.
+# No systemd timers anywhere - cron + notify-send only.
 # =======================================================
 set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -34,10 +34,10 @@ install_pkgs "Update GUI dependencies" python3-gi gir1.2-gtk-3.0 gir1.2-vte-2.91
 GUI="$TOOL_DIR/devuan-update-gui.py"
 cat > "$GUI" << 'UPYEOF'
 #!/usr/bin/env python3
-"""devuan-update-gui — themed GTK window that runs system updates in a VTE.
+"""devuan-update-gui - themed GTK window that runs system updates in a VTE.
 
 Dresses in the live palette from ~/.config/devuan-cinnamon/current/picker.colors
-(bg0/bg1/bg3/fg0 — written by 04-theme.sh), falling back to Catppuccin Mocha
+(bg0/bg1/bg3/fg0 - written by 04-theme.sh), falling back to Graphite Amber
 defaults if that file is missing or unreadable. Theme rules via CSS.
 """
 import os
@@ -57,7 +57,7 @@ except (ValueError, ImportError):
 from gi.repository import Gdk, GLib, Gtk
 
 PICKER = os.path.expanduser("~/.config/devuan-cinnamon/current/picker.colors")
-DEFAULTS = {"bg0": "#1e1e2eF2", "bg1": "#1e1e2e", "bg3": "#89b4faF2", "fg0": "#cdd6f4"}
+DEFAULTS = {"bg0": "#16181DF2", "bg1": "#16181D", "bg3": "#E8A33DF2", "fg0": "#D8D3C8"}
 
 
 def theme_colors():
@@ -250,7 +250,7 @@ chmod +x "$LAUNCHER"
 log_ok "Update window + launcher installed."
 
 # ---------------------------------------------------------------------------
-# 2. The cron checker — notification with a clickable "Update now" action
+# 2. The cron checker - notification with a clickable "Update now" action
 # ---------------------------------------------------------------------------
 CHECKER="$BIN_DIR/devuan-update-check.sh"
 cat > "$CHECKER" << 'EOF'
@@ -307,7 +307,7 @@ NEW_CRON=$(mktemp)
 if crontab "$NEW_CRON"; then
     log_ok "Cron job installed (runs at 09:00 and 18:00 daily)."
 else
-    log_err "Failed to install the cron job — add manually: crontab -e"
+    log_err "Failed to install the cron job - add manually: crontab -e"
     echo "  0 9,18 * * * $CHECKER"
 fi
 rm -f "$NEW_CRON"
@@ -316,10 +316,10 @@ log_ok "cron enabled and started via $(init_system)."
 
 log_info "Running one check now to confirm it works..."
 "$CHECKER"
-log_ok "Check ran — if updates are available you should see a notification."
+log_ok "Check ran - if updates are available you should see a notification."
 
 # ---------------------------------------------------------------------------
-# 3. devuan-menu — themed power-user launcher, bound to Super+M
+# 3. devuan-menu - themed power-user launcher, bound to Super+M
 # ---------------------------------------------------------------------------
 install_pkgs "Menu dependencies" python3-gi gir1.2-gtk-3.0
 cp "$SCRIPT_DIR/../config/menu/devuan-menu.py" "$MENU_TOOL_DIR/devuan-menu.py"
@@ -349,15 +349,15 @@ if command_exists gsettings && command_exists python3 \
     && cinnamon_custom_binding "Devuan Menu" "$BIN_DIR/devuan-menu" "<Super>m"; then
     log_ok "Super+M now opens the Devuan Menu."
 else
-    log_warn "Could not bind Super+M — run devuan-menu manually, or bind it in Cinnamon Settings > Keyboard."
+    log_warn "Could not bind Super+M - run devuan-menu manually, or bind it in Cinnamon Settings > Keyboard."
 fi
 
 echo -e "${GREEN}09 Update System complete.${NC}"
 log_warn "Press Super+M (or run 'devuan-menu') to use it. The update notifier never applies updates automatically."
-log_info "The cron checker auto-detects your session's DISPLAY/DBus at run time — no hard-coded :0 needed."
+log_info "The cron checker auto-detects your session's DISPLAY/DBus at run time - no hard-coded :0 needed."
 
 # ---------------------------------------------------------------------------
-# 4. First-run welcome wizard — one-time, autostarted after a fresh install
+# 4. First-run welcome wizard - one-time, autostarted after a fresh install
 # ---------------------------------------------------------------------------
 if [ -f "$SCRIPT_DIR/../config/menu/devuan-first-run" ]; then
     install -m 755 "$SCRIPT_DIR/../config/menu/devuan-first-run" "$BIN_DIR/devuan-first-run"
@@ -367,7 +367,7 @@ if [ -f "$SCRIPT_DIR/../config/menu/devuan-first-run" ]; then
 Type=Application
 Version=1.0
 Name=Devuan First Run
-Comment=Welcome wizard — first update + Timeshift, once per user
+Comment=Welcome wizard - first update + Timeshift, once per user
 Exec=$BIN_DIR/devuan-first-run
 X-GNOME-Autostart-enabled=true
 X-GNOME-Autostart-Delay=5
@@ -375,5 +375,5 @@ EOF
     log_ok "First-run wizard installed (runs once on next login; skip anytime by answering N)."
     log_info "Re-run it whenever you like: $BIN_DIR/devuan-first-run  (delete $HOME/.config/devuan-cinnamon/first-run-complete to re-arm)."
 else
-    log_warn "config/menu/devuan-first-run not found — skipping first-run wizard."
+    log_warn "config/menu/devuan-first-run not found - skipping first-run wizard."
 fi

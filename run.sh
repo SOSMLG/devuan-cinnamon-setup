@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==========================================
-# 🌿  Devuan Cinnamon Setup — Ordered Runner
+#   Devuan Cinnamon Setup - Ordered Runner
 # Post-install polish for a Devuan box where Cinnamon is
 # already installed by the distro's own installer
 # (task-cinnamon-desktop). Aims for an LMDE 7 "Gigi"-like
@@ -8,7 +8,7 @@
 # to Devuan's OpenRC init.
 #
 # Deterministic: runs the 10 consolidated scripts straight
-# through — nothing prompts, everything is idempotent and
+# through - nothing prompts, everything is idempotent and
 # safe to re-run. Order matters (01 updates first, 04 themes
 # the apps that 06+ finish wiring up).
 #
@@ -23,7 +23,7 @@
 # ==========================================
 
 set -uo pipefail
-# NOTE: intentionally not using `set -e` — one script failing (say, a flaky
+# NOTE: intentionally not using `set -e` - one script failing (say, a flaky
 # download in an installer step) shouldn't abort every later step. Each
 # script exits non-zero on failure so this runner can report it and carry on.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -72,7 +72,7 @@ done
 if [ -f /etc/devuan_version ]; then
     echo -e "${GREEN}Devuan detected: $(cat /etc/devuan_version)${NC}"
 elif [ -f /etc/debian_version ]; then
-    echo -e "${YELLOW}Debian-based system detected: $(cat /etc/debian_version) (not Devuan — most of this should still work)${NC}"
+    echo -e "${YELLOW}Debian-based system detected: $(cat /etc/debian_version) (not Devuan - most of this should still work)${NC}"
 else
     echo -e "${YELLOW}Warning: this toolkit targets Devuan/Debian. Your system may not be compatible.${NC}"
     read -r -p "Continue anyway? (y/N): " continue_anyway
@@ -91,7 +91,7 @@ if command_exists cinnamon-session \
     || [ -n "${XDG_CURRENT_DESKTOP:-}" ] && [[ "${XDG_CURRENT_DESKTOP,,}" == *cinnamon* ]]; then
     echo -e "${GREEN}Cinnamon detected.${NC}"
 else
-    echo -e "${YELLOW}Cinnamon not detected in this session — fine over SSH before first login, but"
+    echo -e "${YELLOW}Cinnamon not detected in this session - fine over SSH before first login, but"
     echo -e "${YELLOW}the desktop/preferences steps (04, 05, 09) need an active Cinnamon session to apply.${NC}"
 fi
 
@@ -102,7 +102,7 @@ SCRIPTS=(
     "01-systemSetup.sh|Update everything, add user to input/video/render, weekly SSD trim, Timeshift"
     "02-debloat.sh|Remove Warpinator, HexChat, GNOME extras, games; disable Tracker; autoremove"
     "03-hardwareCodecs.sh|WiFi/Bluetooth firmware, CPU microcode, fwupd, media codecs, touchpad fixes"
-    "04-theme.sh|Mint-Y base + Catppuccin Mocha palette across the desktop and every themed app"
+    "04-theme.sh|Mint-Y base + Graphite Amber palette across the desktop and every themed app"
     "05-cinnamonSetup.sh|Cinnamon extensions, applets, custom hotkeys, polish, Nemo right-click actions"
     "06-cliStack.sh|ButterBash, fonts (Noto/Nerd/Inter), zsh + starship + gnome-terminal, fastfetch, dev extras"
     "07-apps.sh|Flatpak/Flathub + software center, printing, GParted, firewall panel, VLC, qBit, TLP, Vesktop, Telegram"
@@ -121,7 +121,7 @@ show_list() {
 }
 
 if [ "$SHOW_LIST" -eq 1 ]; then
-    echo -e "${BLUE}Devuan Cinnamon Setup — ordered steps:${NC}"
+    echo -e "${BLUE}Devuan Cinnamon Setup - ordered steps:${NC}"
     show_list
     echo
     echo -e "${YELLOW}Run everything with: bash run.sh${NC}"
@@ -149,18 +149,18 @@ fi
 
 # --- Optional config backup (before any changes) ---
 if [ "$RUN_BACKUP" -eq 1 ]; then
-    echo -e "${YELLOW}▶ scripts/configBackup.sh${NC}"
+    echo -e "${YELLOW}> scripts/configBackup.sh${NC}"
     if bash "$SCRIPTS_DIR/configBackup.sh"; then
-        echo -e "${GREEN}   ✅ Config backup done.${NC}\n"
+        echo -e "${GREEN}   [OK] Config backup done.${NC}\n"
         record_run "config backup done"
     else
-        echo -e "${RED}   ❌ configBackup.sh failed (continuing)${NC}\n"
+        echo -e "${RED}   [!] configBackup.sh failed (continuing)${NC}\n"
         FAILED+=("configBackup.sh")
     fi
 fi
 
 echo -e "${BLUE}=========================================================${NC}"
-echo -e "${BLUE}   Devuan Cinnamon Setup — LMDE energy, OpenRC bones${NC}"
+echo -e "${BLUE}   Devuan Cinnamon Setup - LMDE energy, OpenRC bones${NC}"
 echo -e "${BLUE}=========================================================${NC}"
 echo -e "${GREEN}Running $([ -n "$ONLY" ] && echo "script $ONLY" || echo "all ${#SCRIPTS[@]} steps")${NC}"
 echo
@@ -168,18 +168,18 @@ echo
 run_script() {
     local script="$1"
     local path="$SCRIPTS_DIR/$script"
-    echo -e "${YELLOW}▶ $script${NC}"
+    echo -e "${YELLOW}> $script${NC}"
     if [ ! -f "$path" ]; then
-        echo -e "${RED}   ❌ Script not found: $path${NC}\n"
+        echo -e "${RED}   [!] Script not found: $path${NC}\n"
         FAILED+=("$script (missing)")
         record_run "FAIL script-not-found: $script"
         return
     fi
     if bash "$path"; then
-        echo -e "${GREEN}   ✅ Done: $script${NC}\n"
+        echo -e "${GREEN}   [OK] Done: $script${NC}\n"
         record_run "OK  $script"
     else
-        echo -e "${RED}   ❌ $script exited with an error (continuing)${NC}\n"
+        echo -e "${RED}   [!] $script exited with an error (continuing)${NC}\n"
         FAILED+=("$script")
         record_run "FAIL $script"
     fi
@@ -206,17 +206,17 @@ else
 fi
 
 echo -e "${BLUE}=========================================================${NC}"
-echo -e "${BLUE}   🏁 All tasks processed.${NC}"
+echo -e "${BLUE}   * All tasks processed.${NC}"
 echo -e "${BLUE}=========================================================${NC}"
 
 # --- Optional verification pass (end-state audit) ---
 if [ "$RUN_VERIFY" -eq 1 ] && [ -f "$SCRIPTS_DIR/verifySetup.sh" ]; then
-    echo -e "${YELLOW}▶ scripts/verifySetup.sh${NC}"
+    echo -e "${YELLOW}> scripts/verifySetup.sh${NC}"
     if bash "$SCRIPTS_DIR/verifySetup.sh"; then
-        echo -e "${GREEN}   ✅ Verification passed.${NC}\n"
+        echo -e "${GREEN}   [OK] Verification passed.${NC}\n"
         record_run "verify: passed"
     else
-        echo -e "${RED}   ⚠ Verification found issues (see above).${NC}\n"
+        echo -e "${RED}   [!] Verification found issues (see above).${NC}\n"
         record_run "verify: issues found"
     fi
 fi

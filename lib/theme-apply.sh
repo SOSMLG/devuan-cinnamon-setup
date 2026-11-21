@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 # =======================================================
-# lib/theme-apply.sh — bash helpers for the Catppuccin theme system
+# lib/theme-apply.sh - bash helpers for the Graphite Amber theme system
 # -------------------------------------------------------
 # Source this from scripts/04-theme.sh (and 06-cliStack.sh for fastfetch):
 #   source "$SCRIPT_DIR/../lib/theme-apply.sh"
 #
 # Provides:
 #   - THEME_PALETTE  path to the canonical palette TOML
-#   - theme_export_palette              → exports DCS_THEME_* shell vars
-#   - theme_render <template> <output>  → renders {{ key }} template to file
-#   - apply_gnome_terminal              → Catppuccin profile in gnome-terminal
-#   - apply_btop <palette> <tpl>        → write ~/.config/btop/themes/catppuccin-mocha.theme
-#   - apply_bat <theme_tmtheme>         → install bat Catppuccin Mocha theme
-#   - apply_eza <theme_yml>             → symlink eza theme
-#   - apply_starship <palette> <tpl>    → write ~/.config/starship.toml
-#   - apply_fastfetch <palette> <tpl>   → write ~/.config/fastfetch/config.jsonc
-#   - apply_vscodium_catppuccin         → Catppuccin Mocha theme + settings for VSCodium
-#   - _backup <file>                    → timestamped backup if file exists
+#   - theme_export_palette              -> exports DCS_THEME_* shell vars
+#   - theme_render <template> <output>  -> renders {{ key }} template to file
+#   - apply_gnome_terminal              -> Graphite Amber profile in gnome-terminal
+#   - apply_btop <palette> <tpl>        -> write ~/.config/btop/themes/graphite-amber.theme
+#   - apply_bat <theme_tmtheme>         -> install bat Graphite Amber theme
+#   - apply_eza <theme_yml>             -> symlink eza theme
+#   - apply_starship <palette> <tpl>    -> write ~/.config/starship.toml
+#   - apply_fastfetch <palette> <tpl>   -> write ~/.config/fastfetch/config.jsonc
+#   - apply_vscodium_graphite_amber     -> Graphite Amber theme + settings for VSCodium
+#   - _backup <file>                    -> timestamped backup if file exists
 # =======================================================
 if [ -n "${DCS_THEME_APPLY_LOADED:-}" ]; then return 0 2>/dev/null || exit 0; fi
 DCS_THEME_APPLY_LOADED=1
@@ -47,20 +47,20 @@ theme_render() {
 }
 
 # ---------------------------------------------------------------------------
-# App-specific apply functions — each writes to ~/.config/ in a safe,
+# App-specific apply functions - each writes to ~/.config/ in a safe,
 # idempotent way, backs up before clobbering.
 # ---------------------------------------------------------------------------
 
 apply_gnome_terminal() {
-    # Themes the gnome-terminal profile with the Catppuccin palette so the
+    # Themes the gnome-terminal profile with the Graphite Amber palette so the
     # default terminal keeps the themed look of the rest of the app layer.
-    # Creates/reuses a "Catppuccin Mocha" profile and sets it as default.
+    # Creates/reuses a "Graphite Amber" profile and sets it as default.
     local src_palette="${1:-$THEME_PALETTE}"
     if ! command_exists python3 || ! command_exists gsettings; then
-        echo "[!] python3/gsettings unavailable — skipping gnome-terminal theme."
+        echo "[!] python3/gsettings unavailable - skipping gnome-terminal theme."
         return 0
     fi
-    log_ok "Applying Catppuccin Mocha to the gnome-terminal profile..."
+    log_ok "Applying Graphite Amber to the gnome-terminal profile..."
     python3 - "$src_palette" << 'PYEOF'
 import os, re, subprocess, sys, uuid
 
@@ -96,7 +96,7 @@ for u in uuids:
     if not u:
         continue
     nm = gget(f"{schema}:/org/gnome/terminal/legacy/profiles:/:{u}/", "visible-name").strip("'\"")
-    if nm == "Catppuccin Mocha":
+    if nm == "Graphite Amber":
         profile_uuid = u
         break
 
@@ -117,7 +117,7 @@ def rgb(h):
     h = h.lstrip("#")
     return f"rgb({int(h[0:2],16)},{int(h[2:4],16)},{int(h[4:6],16)})"
 
-c = lambda name: colors.get(name, "#1e1e2e")
+c = lambda name: colors.get(name, "#16181D")
 palette = [
     c("background"), c("red"), c("green"), c("yellow"),
     c("blue"), c("magenta"), c("cyan"), c("foreground"),
@@ -127,7 +127,7 @@ palette = [
 palette_str = "[" + ", ".join("'" + rgb(h) + "'" for h in palette) + "]"
 
 sets = {
-    "visible-name": "'Catppuccin Mocha'",
+    "visible-name": "'Graphite Amber'",
     "use-theme-colors": "false",
     "use-theme-transparency": "false",
     "use-transparent-background": "false",
@@ -142,13 +142,13 @@ sets = {
 for k, v in sets.items():
     run(["gsettings", "set", key(k), k, v])
 run(["gsettings", "set", base, "default", f"'{profile_uuid}'"])
-print("[OK] gnome-terminal 'Catppuccin Mocha' profile created and set as default.")
+print("[OK] gnome-terminal 'Graphite Amber' profile created and set as default.")
 PYEOF
 }
 
 apply_btop() {
     local theme_dir="$HOME/.config/btop/themes"
-    local theme_out="$theme_dir/catppuccin-mocha.theme"
+    local theme_out="$theme_dir/graphite-amber.theme"
     local conf="$HOME/.config/btop/btop.conf"
     mkdir -p "$theme_dir"
     _backup "$theme_out"
@@ -157,10 +157,10 @@ apply_btop() {
     if [ -f "$conf" ]; then
         if grep -qE '^\s*color_theme\s*=' "$conf"; then
             _backup "$conf"
-            sed -i 's|color_theme = ".*"|color_theme = "catppuccin-mocha"|' "$conf"
+            sed -i 's|color_theme = ".*"|color_theme = "graphite-amber"|' "$conf"
         fi
     fi
-    echo "[OK] btop Catppuccin Mocha theme installed."
+    echo "[OK] btop Graphite Amber theme installed."
 }
 
 apply_bat() {
@@ -168,25 +168,25 @@ apply_bat() {
     local bat_themes="$HOME/.config/bat/themes"
     local bat_config="$HOME/.config/bat/config"
     mkdir -p "$bat_themes"
-    _backup "$bat_themes/Catppuccin Mocha.tmTheme"
-    cp "$src" "$bat_themes/Catppuccin Mocha.tmTheme"
+    _backup "$bat_themes/Graphite Amber.tmTheme"
+    cp "$src" "$bat_themes/Graphite Amber.tmTheme"
     # Rebuild bat cache
     command_exists bat && bat cache --build >/dev/null 2>&1
     # Set theme in bat config
     if [ -f "$bat_config" ]; then
-        if ! grep -qF 'Catppuccin Mocha' "$bat_config"; then
+        if ! grep -qF 'Graphite Amber' "$bat_config"; then
             _backup "$bat_config"
             # Append --theme if not present, or replace existing --theme line
             if grep -qE '^\s*--theme\s*=' "$bat_config"; then
-                sed -i 's|--theme=".*"|--theme="Catppuccin Mocha"|' "$bat_config"
+                sed -i 's|--theme=".*"|--theme="Graphite Amber"|' "$bat_config"
             else
-                echo '--theme="Catppuccin Mocha"' >> "$bat_config"
+                echo '--theme="Graphite Amber"' >> "$bat_config"
             fi
         fi
     else
-        echo '--theme="Catppuccin Mocha"' > "$bat_config"
+        echo '--theme="Graphite Amber"' > "$bat_config"
     fi
-    echo "[OK] bat Catppuccin Mocha theme installed."
+    echo "[OK] bat Graphite Amber theme installed."
 }
 
 apply_eza() {
@@ -195,7 +195,7 @@ apply_eza() {
     mkdir -p "$HOME/.config/eza"
     _backup "$out"
     cp "$src" "$out"
-    echo "[OK] eza Catppuccin Mocha theme installed."
+    echo "[OK] eza Graphite Amber theme installed."
 }
 
 apply_starship() {
@@ -203,7 +203,7 @@ apply_starship() {
     mkdir -p "$HOME/.config"
     _backup "$out"
     theme_render "$1" "$out"
-    echo "[OK] starship Catppuccin config written to $out"
+    echo "[OK] starship Graphite Amber config written to $out"
 }
 
 apply_fastfetch() {
@@ -211,33 +211,29 @@ apply_fastfetch() {
     mkdir -p "$HOME/.config/fastfetch"
     _backup "$out"
     theme_render "$1" "$out"
-    echo "[OK] fastfetch Catppuccin config written to $out"
+    echo "[OK] fastfetch Graphite Amber config written to $out"
 }
 
-apply_vscodium_catppuccin() {
+apply_vscodium_graphite_amber() {
     if ! command_exists codium; then
-        echo "[!] VSCodium not installed yet (06-cliStack installs it) — skipping VSCodium theme."
+        echo "[!] VSCodium not installed yet (06-cliStack installs it) - skipping VSCodium theme."
         return 0
     fi
     local settings="$HOME/.config/VSCodium/User/settings.json"
-    local ext_dir="$HOME/.vscode-oss/extensions"
     mkdir -p "$(dirname "$settings")"
 
-    # Ensure the Catppuccin extension is present (VSCodium uses Open VSX)
-    if command_exists codium && ! ls "$ext_dir" 2>/dev/null | grep -qi catppuccin; then
-        codium --install-extension "Catppuccin.catppuccin-vsc" --force >/dev/null 2>&1             || echo "[!] Could not install Catppuccin extension (network?) — settings still written."
-    fi
-
-    if [ -f "$settings" ] && grep -q 'Catppuccin Mocha' "$settings"; then
-        echo "[OK] VSCodium already themed (Catppuccin Mocha)."
+    # Built-in dark base + colorCustomizations; no extension install needed.
+    if [ -f "$settings" ] && grep -q '"terminal.ansiYellow": "#E8A33D"' "$settings"; then
+        echo "[OK] VSCodium already themed (Graphite Amber)."
         return 0
     fi
     _backup "$settings"
 
     cat > "$settings" << 'VSEOF'
 {
-    "workbench.colorTheme": "Catppuccin Mocha",
-    "workbench.iconTheme": "catppuccin-mocha",
+    "workbench.colorTheme": "Default Dark Modern",
+    "workbench.preferredDarkColorTheme": "Default Dark Modern",
+    "workbench.iconTheme": "vs-seti",
     "editor.fontFamily": "JetBrainsMono Nerd Font Mono, monospace",
     "editor.fontSize": 13,
     "editor.lineHeight": 1.6,
@@ -250,26 +246,41 @@ apply_vscodium_catppuccin() {
     "window.titleBarStyle": "custom",
     "window.commandCenter": true,
     "workbench.colorCustomizations": {
-        "terminal.background": "#1e1e2e",
-        "terminal.foreground": "#cdd6f4",
-        "terminal.ansiBlack": "#45475a",
-        "terminal.ansiRed": "#f38ba8",
-        "terminal.ansiGreen": "#a6e3a1",
-        "terminal.ansiYellow": "#f9e2af",
-        "terminal.ansiBlue": "#89b4fa",
-        "terminal.ansiMagenta": "#f5c2e7",
-        "terminal.ansiCyan": "#94e2d5",
-        "terminal.ansiWhite": "#bac2de",
-        "terminal.ansiBrightBlack": "#585b70",
-        "terminal.ansiBrightRed": "#f38ba8",
-        "terminal.ansiBrightGreen": "#a6e3a1",
-        "terminal.ansiBrightYellow": "#f9e2af",
-        "terminal.ansiBrightBlue": "#89b4fa",
-        "terminal.ansiBrightMagenta": "#f5c2e7",
-        "terminal.ansiBrightCyan": "#94e2d5",
-        "terminal.ansiBrightWhite": "#a6adc8"
+        "editor.background": "#16181D",
+        "editor.foreground": "#D8D3C8",
+        "editorLine.foreground": "#30343B",
+        "editor.selectionBackground": "#30343B",
+        "editorCursor.foreground": "#E8A33D",
+        "editorGutter.background": "#16181D",
+        "sideBar.background": "#202329",
+        "sideBar.foreground": "#D8D3C8",
+        "panel.background": "#202329",
+        "panel.foreground": "#D8D3C8",
+        "titleBar.activeBackground": "#202329",
+        "titleBar.activeForeground": "#D8D3C8",
+        "statusBar.background": "#16181D",
+        "statusBar.foreground": "#D8D3C8",
+        "focusBorder": "#E8A33D",
+        "terminal.background": "#16181D",
+        "terminal.foreground": "#D8D3C8",
+        "terminal.ansiBlack": "#30343B",
+        "terminal.ansiRed": "#C97064",
+        "terminal.ansiGreen": "#8FB57A",
+        "terminal.ansiYellow": "#E8A33D",
+        "terminal.ansiBlue": "#7E9DB5",
+        "terminal.ansiMagenta": "#A78BB5",
+        "terminal.ansiCyan": "#79A9A6",
+        "terminal.ansiWhite": "#D8D3C8",
+        "terminal.ansiBrightBlack": "#9A9AA2",
+        "terminal.ansiBrightRed": "#C97064",
+        "terminal.ansiBrightGreen": "#8FB57A",
+        "terminal.ansiBrightYellow": "#D2992F",
+        "terminal.ansiBrightBlue": "#7E9DB5",
+        "terminal.ansiBrightMagenta": "#A78BB5",
+        "terminal.ansiBrightCyan": "#79A9A6",
+        "terminal.ansiBrightWhite": "#D8D3C8"
     }
 }
 VSEOF
-    echo "[OK] VSCodium themed with Catppuccin Mocha."
+    echo "[OK] VSCodium themed with Graphite Amber."
 }

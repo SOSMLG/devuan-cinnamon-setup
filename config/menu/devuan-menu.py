@@ -10,7 +10,7 @@ system/update/AI actions that actually get used.
 
 Styling follows the ohmydebn picker-colors key format
 (bg0/bg1/bg3/fg0) from ~/.config/devuan-cinnamon/current/picker.colors,
-written by catppuccinTheme.sh. Falls back to Catppuccin Mocha defaults.
+written by 04-theme.sh. Falls back to Graphite Amber defaults.
 
 Launch from the command line (`devuan-menu`) or a Cinnamon hotkey.
 """
@@ -27,7 +27,7 @@ gi.require_version("Pango", "1.0")
 from gi.repository import Gdk, Gtk, Pango
 
 PICKER = os.path.expanduser("~/.config/devuan-cinnamon/current/picker.colors")
-DEFAULTS = {"bg0": "#1e1e2eF2", "bg1": "#1e1e2e", "bg3": "#f38ba8F2", "fg0": "#cdd6f4"}
+DEFAULTS = {"bg0": "#16181DF2", "bg1": "#16181D", "bg3": "#E8A33DF2", "fg0": "#D8D3C8"}
 
 CATEGORIES = {
     "Apps": [
@@ -109,7 +109,7 @@ def rgba(value, alpha=1.0):
     if len(value) == 9:
         value = value[:7]
     if not (value.startswith("#") and len(value) == 7):
-        value = "#1e1e2e"
+        value = "#16181D"
     return Gdk.RGBA(
         red=int(value[1:3], 16) / 255.0,
         green=int(value[3:5], 16) / 255.0,

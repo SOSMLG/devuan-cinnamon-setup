@@ -4,8 +4,8 @@ You are running on a Devuan GNU/Linux system that has been set up with the
 **devuan-cinnamon-setup** toolkit — a Cinnamon desktop on Devuan instead of
 Debian (binary-compatible with Debian trixie), with OpenRC running on top of
 sysvinit as the init setup instead of systemd. The desktop is themed to a
-**Catppuccin Mocha** palette (accent / blue `#89b4fa`, background `#1e1e2e`,
-foreground `#cdd6f4`) with ohmydebn-style power-user conveniences. Keep the
+**Graphite Amber** palette (accent `#E8A33D`, canvas `#16181D`,
+foreground `#D8D3C8`) with ohmydebn-style power-user conveniences. Keep the
 following in mind for any system-level help you give:
 
 ## Init system: OpenRC (not systemd)
@@ -52,10 +52,10 @@ following in mind for any system-level help you give:
   <value>` run as root or without `DISPLAY`/`DBUS_SESSION_BUS_ADDRESS`
   set will silently fail or write nowhere useful.
 - Look: LMDE-flavored base (Mint-Y icons; mint-themes) carried into
-  Catppuccin Mocha by `scripts/04-theme.sh` — a dark stock GTK shell
-  theme plus a palette-faithful **app layer**: gnome-terminal (Catppuccin
-  profile), btop, bat, eza, starship (prompt), fastfetch. The shell/GTK/
-  window chrome is **Catppuccin Mocha-Red**. Desktop effects stay ON.
+  Graphite Amber by `scripts/04-theme.sh` — a dark stock GTK shell
+  theme plus a palette-faithful **app layer**: gnome-terminal (Graphite Amber
+  profile), btop, bat, eza, starship (prompt), fastfetch. The stock dark
+  GTK base carries the identity through the app palette. Desktop effects stay ON.
 - Custom keybindings merge into `org.cinnamon.desktop.keybindings`
   custom-list invariantly (use `cinnamon_custom_binding` from
   `lib/common.sh`, never a bulk overwrite). Highlights: Super+Return
@@ -71,7 +71,7 @@ following in mind for any system-level help you give:
     OpenCode in that terminal. **VSCodium** (`codium`) is the installed
     editor (telemetry-free VS Code).
 - The canonical palette lives in
-  `config/palette/catppuccin-mocha.toml`; templates in
+  `config/palette/graphite-amber.toml`; templates in
   `config/templates/*.tpl` are `{{ key }}`-rendered by
   `lib/theme_render.py`, and `lib/theme-apply.sh` applies them.
   `~/.config/devuan-cinnamon/current/` holds the active palette copy and
@@ -145,6 +145,6 @@ features — the OpenCode agent setup and system skill file, the update
 window concept, the GTK-picker styling, the power-menu concept, the Cinnamon
 polish hints, the CLI-tool selection — are adapted from
 [OhMyDebn](https://github.com/dougburks/ohmydebn) (MIT licensed), and the
-palette is [Catppuccin](https://github.com/catppuccin) Mocha, both reworked
+palette is Graphite Amber, maintained locally and reworked
 here for Cinnamon-on-Devuan with OpenRC instead of OhMyDebn's Debian +
 systemd base.

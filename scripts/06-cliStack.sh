@@ -1,33 +1,33 @@
 #!/usr/bin/env bash
 # =======================================================
-# 06 CLI Stack — fonts, ButterBash, zsh power shell, fastfetch
+# 06 CLI Stack - fonts, ButterBash, zsh power shell, fastfetch
 # -------------------------------------------------------
 # Merges the old terminalButterbash.sh / installFonts.sh /
 # zshPowerUser.sh / fastfetchConfig.sh / (useful bits of)
 # devToolsExtras.sh:
-#   * ButterBash (bundled locally under ../butterbash — works offline)
+#   * ButterBash (bundled locally under ../butterbash - works offline)
 #   * Fonts: Noto (Latin+Arabic+Emoji), Font Awesome, JetBrainsMono Nerd
 #     Font (latest GitHub release) + fontconfig prefs + the Inter UI font
 #     applied as Cinnamon's desktop font
 #   * zsh + Oh My Zsh + autosuggestions + syntax-highlighting, a starship
 #     prompt, eza/zoxide/bat/btop/fzf/fd/lazygit/gum/grc/yq/jq, and
 #     gnome-terminal as THE default terminal (system alternative + Cinnamon
-#     keys + Catppuccin profile; Alacritty, if present, is purged)
+#     keys + Graphite Amber profile; Alacritty, if present, is purged)
 #   * Dev extras: btop, eza, bat, zoxide, KeePassXC (no heavier stack;
 #     Neovim/LazyVim and VSCodium are intentionally not bundled here)
-#   * fastfetch + curated presets (neon default)
+#   * fastfetch + curated presets (Graphite Amber config applied)
 # =======================================================
 set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/common.sh
 source "$SCRIPT_DIR/../lib/common.sh"
 # shellcheck source=lib/theme-apply.sh
-source "$SCRIPT_DIR/../lib/theme-apply.sh" || { log_err "theme-apply.sh missing — aborting."; exit 1; }
+source "$SCRIPT_DIR/../lib/theme-apply.sh" || { log_err "theme-apply.sh missing - aborting."; exit 1; }
 
 require_not_root
 log_head "06 CLI Stack"
 
-THEME_PALETTE="$SCRIPT_DIR/../config/palette/catppuccin-mocha.toml"
+THEME_PALETTE="$SCRIPT_DIR/../config/palette/graphite-amber.toml"
 HAVE_SESSION=0
 command_exists gsettings && [ -n "${DISPLAY:-}" ] && HAVE_SESSION=1
 BIN_DIR="$HOME/.local/bin"
@@ -36,24 +36,24 @@ mkdir -p "$BIN_DIR"
 apt_update
 
 # ---------------------------------------------------------------------------
-# 1. ButterBash — bundled so it works offline / without relying on the
+# 1. ButterBash - bundled so it works offline / without relying on the
 #    upstream repo still existing.
 # ---------------------------------------------------------------------------
 BUTTERBASH_SRC="$SCRIPT_DIR/../butterbash"
 if [ ! -d "$BUTTERBASH_SRC" ] || [ ! -f "$BUTTERBASH_SRC/install.sh" ]; then
-    log_warn "Bundled ButterBash not found at $BUTTERBASH_SRC — skipping."
+    log_warn "Bundled ButterBash not found at $BUTTERBASH_SRC - skipping."
 else
     log_info "Installing ButterBash from $BUTTERBASH_SRC ..."
     if ( cd "$BUTTERBASH_SRC" && bash install.sh --yes ); then
         log_ok "ButterBash installed."
         log_info "Run 'source ~/.bashrc' or open a new terminal to use it."
     else
-        log_warn "ButterBash installation failed — continuing."
+        log_warn "ButterBash installation failed - continuing."
     fi
 fi
 
 # ---------------------------------------------------------------------------
-# 2. Fonts — Noto + Font Awesome via apt, JetBrainsMono Nerd Font from the
+# 2. Fonts - Noto + Font Awesome via apt, JetBrainsMono Nerd Font from the
 #    latest GitHub release, plus fontconfig rendering prefs.
 # ---------------------------------------------------------------------------
 apt_update
@@ -64,7 +64,7 @@ install_pkgs "Fonts (Noto + Font Awesome)" \
 NERD_FONT_DIR="$HOME/.local/share/fonts/NerdFonts"
 mkdir -p "$NERD_FONT_DIR"
 if fc-list | grep -qi "JetBrainsMono Nerd Font"; then
-    log_ok "JetBrainsMono Nerd Font already installed — skipping download."
+    log_ok "JetBrainsMono Nerd Font already installed - skipping download."
 else
     log_info "Fetching the latest JetBrainsMono Nerd Font release... "
     DOWNLOAD_URL=$(curl -fsSL https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest \
@@ -72,7 +72,7 @@ else
         | grep -i "JetBrainsMono.*tar\.xz" \
         | head -1)
     if [ -z "$DOWNLOAD_URL" ]; then
-        log_warn "GitHub API failed — using pinned fallback URL."
+        log_warn "GitHub API failed - using pinned fallback URL."
         DOWNLOAD_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.tar.xz"
     fi
 
@@ -83,7 +83,7 @@ else
             || tar -xf "$WORK_DIR/JetBrainsMono.tar.xz" -C "$NERD_FONT_DIR"); then
         log_ok "JetBrainsMono Nerd Font installed to $NERD_FONT_DIR."
     else
-        log_warn "JetBrainsMono download/extract failed — continuing without it."
+        log_warn "JetBrainsMono download/extract failed - continuing without it."
     fi
     rm -rf "$WORK_DIR"
     trap - EXIT
@@ -168,7 +168,7 @@ except Exception:
         fc-cache -f "$FONT_DIR" >/dev/null 2>&1
         log_ok "Inter installed to $FONT_DIR."
     else
-        log_warn "Could not fetch Inter — skipping font install."
+        log_warn "Could not fetch Inter - skipping font install."
     fi
 fi
 if [ -f "$FONT_DIR/Inter.ttf" ] && [ "$HAVE_SESSION" -eq 1 ]; then
@@ -179,7 +179,7 @@ if [ -f "$FONT_DIR/Inter.ttf" ] && [ "$HAVE_SESSION" -eq 1 ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 4. Dev extras — btop, eza, bat, zoxide, KeePassXC (+ fd alias so tools
+# 4. Dev extras - btop, eza, bat, zoxide, KeePassXC (+ fd alias so tools
 #    like Telescope/justaguy configs find it).
 # ---------------------------------------------------------------------------
 install_pkgs "Dev extras" btop eza bat zoxide keepassxc fd-find ripgrep fzf lazygit gum grc yq jq duf
@@ -192,12 +192,12 @@ fi
 log_ok "Dev extras installed."
 
 # ---------------------------------------------------------------------------
-# 5. Bash power-user stack — starship-prompt bash (no zsh; ButterBash is
+# 5. Bash power-user stack - starship-prompt bash (no zsh; ButterBash is
 #    already bash-native). Brings in VSCodium (VSCode-minus-telemetry) with a
-#    full C++/Python toolchain + Catppuccin Mocha, wired to Nemo/terminal.
+#    full C++/Python toolchain + Graphite Amber, wired to Nemo/terminal.
 # ---------------------------------------------------------------------------
 
-# 5a. VSCodium — telemetry-free VSCode (official APT repo so it stays updated).
+# 5a. VSCodium - telemetry-free VSCode (official APT repo so it stays updated).
 install_vscodium_apt
 
 # 5b. Dev toolchain for C++ (clangd) and Python (Pylance-free: basedpyright).
@@ -209,13 +209,13 @@ vscodium_install_extensions
 # 5d. Starter project (C++ CMake + Python venv) + open-in-terminal helpers.
 vscodium_starter_project
 
-# 5e. Catppuccin Mocha theme for VSCodium (Catppuccin VSCode extension).
-apply_vscodium_catppuccin
+# 5e. Graphite Amber theme for VSCodium (built-in dark base + colorCustomizations).
+apply_vscodium_graphite_amber
 
 # 5f. Nemo "Open in VSCodium" action post-install (idempotent).
 nemo_add_vscode_action
 
-# 6. fastfetch — system info on terminal open, with curated presets
+# 6. fastfetch - system info on terminal open, with curated presets
 # ---------------------------------------------------------------------------
 install_pkgs "fastfetch" fastfetch
 FF_DIR="$HOME/.config/fastfetch"
@@ -232,10 +232,10 @@ if command_exists wget; then
     done
     if [ -f "$FF_DIR/neon.jsonc" ]; then
         cp "$FF_DIR/neon.jsonc" "$FF_DIR/config.jsonc"
-        log_ok "fastfetch presets installed (neon set as default)."
+        log_ok "fastfetch presets installed (Graphite Amber config applied below)."
     fi
 else
-    log_warn "wget not installed — skipping fastfetch presets (fastfetch binary still works with defaults)."
+    log_warn "wget not installed - skipping fastfetch presets (fastfetch binary still works with defaults)."
 fi
 # 04-theme's apply_fastfetch may not have been called if fastfetch lagged,
 # so honor the palette here if the template-driven config exists.

@@ -1,0 +1,49 @@
+# =======================================================
+# Graphite Amber palette - single source of truth for the whole
+# desktop. Canonical key names mirror ohmydebn's "semantic" theme format
+# (https://github.com/dougburks/ohmydebn, MIT licensed): named colors plus
+# background/foreground shades. lib/theme-apply.sh derives the legacy
+# ANSI color0-15 + cursor + selection aliases from these and renders every
+# app config (gnome-terminal, btop, bat, eza, starship, fastfetch) from them.
+#
+# This is the Graphite + Amber standard: graphite canvas/surface/lines with
+# an amber accent. The app layer and the stock dark GTK base follow it.
+#   accent  -> Amber    #E8A33D
+#   red     -> Red      #C97064
+#   green   -> Success  #8FB57A
+#   yellow  -> Amber    #E8A33D
+#   blue    -> Blue     #7E9DB5
+#   magenta -> Purple   #A78BB5
+#   cyan    -> Cyan     #79A9A6
+# =======================================================
+mode = "dark"
+
+accent = "#E8A33D"
+selection = "#30343B"
+muted = "#9A9AA2"
+
+background = "#16181D"
+dark_background = "#16181D"
+darker_background = "#16181D"
+lighter_background = "#202329"
+
+foreground = "#D8D3C8"
+dark_foreground = "#9A9AA2"
+light_foreground = "#D8D3C8"
+bright_foreground = "#D8D3C8"
+
+red = "#C97064"
+yellow = "#E8A33D"
+orange = "#D2992F"
+green = "#8FB57A"
+cyan = "#79A9A6"
+blue = "#7E9DB5"
+magenta = "#A78BB5"
+brown = "#D2992F"
+
+bright_red = "#C97064"
+bright_yellow = "#E8A33D"
+bright_green = "#8FB57A"
+bright_cyan = "#79A9A6"
+bright_blue = "#7E9DB5"
+bright_magenta = "#A78BB5"

@@ -2,7 +2,7 @@
 
 Post-install polish for Devuan systems where Cinnamon is already installed.
 The toolkit does not install Cinnamon. It debloats the distro task, adds the
-missing desktop pieces, and applies a Catppuccin Mocha identity.
+missing desktop pieces, and applies a Graphite Amber identity.
 
 ## Entry points
 

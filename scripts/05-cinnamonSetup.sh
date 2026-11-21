@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =======================================================
-# 05 Cinnamon Setup — extensions, hotkeys, polish, Nemo actions
+# 05 Cinnamon Setup - extensions, hotkeys, polish, Nemo actions
 # -------------------------------------------------------
 # Merges the old fancyCinnamon.sh / hotkeys.sh / ohmydebnPolish.sh /
 # nemoActions.sh:
@@ -11,7 +11,7 @@
 #     Color Picker, Weather, SpicesUpdate, Coverflow alt-tab,
 #     Night Light, Super+L lock
 #   * Burn My Windows and (already-installed) Blur Cinnamon get their
-#     settings.json written by lib helpers — no "click through every
+#     settings.json written by lib helpers - no "click through every
 #     settings page" chore after a fresh install
 #   * Cinnamon custom hotkeys (Super+Return terminal, Super+F files,
 #     Ctrl+Super+E editor, Ctrl+Shift+Escape system monitor)
@@ -51,14 +51,14 @@ HAVE_SESSION=0
 command_exists gsettings && [ -n "${DISPLAY:-}" ] && HAVE_SESSION=1
 
 remove_extension() {
-    # $1 = uuid, $2 = human label — deletes the extension dir and drops it
+    # $1 = uuid, $2 = human label - deletes the extension dir and drops it
     # from org.cinnamon enabled-extensions (idempotent).
     local uuid="$1" label="$2"
     if [ -d "$EXT_DIR/$uuid" ]; then
         rm -rf "$EXT_DIR/$uuid"
         log_ok "$label removed."
     else
-        log_info "$label not present — nothing to remove."
+        log_info "$label not present - nothing to remove."
     fi
     if [ "$HAVE_SESSION" -eq 1 ]; then
         run_as_user python3 "$LIST_REMOVE" org.cinnamon enabled-extensions "$uuid" >/dev/null
@@ -73,7 +73,7 @@ install_extension() {
     else
         log_info "Downloading $label ($uuid) from cinnamon-spices-extensions..."
         if ! run_as_user python3 "$SPICE_INSTALLER" extensions "$uuid" "$EXT_DIR" | grep -q OK; then
-            log_warn "Could not download $label — skipping (network / GitHub API rate limit)."
+            log_warn "Could not download $label - skipping (network / GitHub API rate limit)."
             return 1
         fi
         log_ok "$label downloaded."
@@ -96,7 +96,7 @@ install_applet() {
     else
         log_info "Downloading $label ($uuid) from cinnamon-spices-applets..."
         if ! run_as_user python3 "$SPICE_INSTALLER" applets "$uuid" "$APPLET_DIR" | grep -q OK; then
-            log_warn "Could not download $label — skipping."
+            log_warn "Could not download $label - skipping."
             return 1
         fi
         log_ok "$label downloaded."
@@ -108,7 +108,7 @@ install_applet() {
 }
 
 # ---------------------------------------------------------------------------
-# 1. Extensions — the "modern Cinnamon" set from the walkthroughs
+# 1. Extensions - the "modern Cinnamon" set from the walkthroughs
 # ---------------------------------------------------------------------------
 install_extension "cinnamon-maximus@fmete" "Cinnamon Maximus"
 log_info "(Tip: with Maximus on, hold Alt and nudge the mouse to get a maximized window's titlebar back.)"
@@ -117,13 +117,13 @@ install_extension "BlurCinnamon@klangman" "Blur Cinnamon"
 install_extension "gTile@shuairan" "gTile"
 log_info "gTile opens with Super+G by default."
 
-# Ergonomic window-management set — all from the same author or the walkthroughs.
+# Ergonomic window-management set - all from the same author or the walkthroughs.
 install_extension "NewWindowSettings@klangman" "New Window Settings"
 install_extension "RearrangeWorkspaces@klangman" "Rearrange Workspaces"
 install_extension "focus-new-window@mdpenguin" "Focus New Window"
 install_extension "dim-inactive-windows@jark" "Dim Inactive Windows"
 
-# Burn My Windows — preconfigured to the subtle Glide effect; the old
+# Burn My Windows - preconfigured to the subtle Glide effect; the old
 # standalone Magic Lamp extension is removed (Burn My Windows supersedes it).
 install_extension "CinnamonBurnMyWindows@klangman" "Burn My Windows"
 remove_extension "CinnamonMagicLamp@klangman" "Magic Lamp Effect"
@@ -131,17 +131,17 @@ remove_extension "CinnamonMagicLamp@klangman" "Magic Lamp Effect"
 if run_as_user python3 "$BURNMY_SETTER" | grep -q OK; then
     log_ok "Burn My Windows set to Glide (subtle; minimize stays Cinnamon's default)."
 else
-    log_warn "Could not pre-write Burn My Windows settings — configure it via Extensions > Burn My Windows."
+    log_warn "Could not pre-write Burn My Windows settings - configure it via Extensions > Burn My Windows."
 fi
 
 if run_as_user python3 "$BLUR_SETTER" | grep -q OK; then
-    log_ok "Blur Cinnamon configured: panels + popup menus + alt-tab/overview/expo, Mocha dim."
+    log_ok "Blur Cinnamon configured: panels + popup menus + alt-tab/overview/expo, graphite dim."
 else
-    log_warn "Could not pre-write Blur Cinnamon settings — configure it via Extensions > Blur Cinnamon."
+    log_warn "Could not pre-write Blur Cinnamon settings - configure it via Extensions > Blur Cinnamon."
 fi
 
 # ---------------------------------------------------------------------------
-# 2. Panel layout — one grouped window list, a launcher cluster after the
+# 2. Panel layout - one grouped window list, a launcher cluster after the
 #    menu, plus windows-quick-list + trash. set-panel-layout.py also removes
 #    duplicates from older runs (window-list@cinnamon.org, and the stranded
 #    favorites applet) while keeping anything else you've added.
@@ -153,11 +153,11 @@ if [ "$HAVE_SESSION" -eq 1 ]; then
             OK*) log_ok "Panel layout applied ($OUT)." ;;
         esac
     else
-        log_warn "Panel layout could not be applied — applets are unchanged."
+        log_warn "Panel layout could not be applied - applets are unchanged."
     fi
 fi
 if [ "$HAVE_SESSION" -eq 0 ]; then
-    log_info "No active Cinnamon session — panel layout deferred (run once logged in)."
+    log_info "No active Cinnamon session - panel layout deferred (run once logged in)."
 fi
 
 # ---------------------------------------------------------------------------
@@ -166,7 +166,7 @@ fi
 install_applet "color-picker@fmete" "Color Picker" "python3-numpy python3-xlib"
 
 # ---------------------------------------------------------------------------
-# 3b. Weather + SpicesUpdate applets (both from Petri Heinonen / claudiux —
+# 3b. Weather + SpicesUpdate applets (both from Petri Heinonen / claudiux -
 #     external, so they live alongside the built-in panel set)
 # ---------------------------------------------------------------------------
 install_applet "weather@mockturtl" "Weather" "python3-requests"
@@ -190,7 +190,7 @@ if [ "$HAVE_SESSION" -eq 1 ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 5. Custom hotkeys — the essentials set
+# 5. Custom hotkeys - the essentials set
 # ---------------------------------------------------------------------------
 if [ "$HAVE_SESSION" -eq 1 ]; then
     cinnamon_custom_binding "Terminal"        "x-terminal-emulator"            "<Super>Return"
@@ -200,11 +200,11 @@ if [ "$HAVE_SESSION" -eq 1 ]; then
     cinnamon_custom_binding "System Monitor"   "x-terminal-emulator -e htop"    "<Primary><Shift>Escape"
     log_ok "Custom hotkeys applied."
 else
-    log_warn "No active Cinnamon session — hotkeys skipped. Re-run once logged in."
+    log_warn "No active Cinnamon session - hotkeys skipped. Re-run once logged in."
 fi
 
 # ---------------------------------------------------------------------------
-# 6. Polish — sounds, snappiness, alt-tab, ibus, kernel hardening
+# 6. Polish - sounds, snappiness, alt-tab, ibus, kernel hardening
 # ---------------------------------------------------------------------------
 if [ "$HAVE_SESSION" -eq 1 ]; then
     APPLIED=0
@@ -262,7 +262,7 @@ if [ "$HAVE_SESSION" -eq 1 ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 7. Kernel hardening — blacklist modules behind in-place-decrypt bugs
+# 7. Kernel hardening - blacklist modules behind in-place-decrypt bugs
 #    (algif_aead "Copy Fail", esp4/esp6/rxrpc "Dirty Frag"). Ported from
 #    ohmydebn's modprobe.sh; the conf files are easy to revert.
 # ---------------------------------------------------------------------------
@@ -374,11 +374,11 @@ log_ok "'Compress Image' added."
 if command_exists codium; then
     nemo_add_vscode_action
 else
-    log_warn "'codium' not on PATH yet — Nemo 'Open with VSCodium' action deferred to step 06."
+    log_warn "'codium' not on PATH yet - Nemo 'Open with VSCodium' action deferred to step 06."
 fi
 
 if ! command_exists opencode; then
-    log_warn "'opencode' not on PATH yet (installed by 10-aiAgents.sh) — adding the 'Open in OpenCode' action anyway."
+    log_warn "'opencode' not on PATH yet (installed by 10-aiAgents.sh) - adding the 'Open in OpenCode' action anyway."
 fi
 cat > "$BIN_DIR/devuan-nemo-open-opencode.sh" << 'EOF'
 #!/usr/bin/env bash
@@ -402,7 +402,7 @@ log_ok "'Open in OpenCode' added."
 
 echo -e "${GREEN}05 Cinnamon Setup complete.${NC}"
 if [ "$HAVE_SESSION" -eq 0 ]; then
-    log_warn "No active Cinnamon session — extension/dconf steps were skipped. Re-run once logged in."
+    log_warn "No active Cinnamon session - extension/dconf steps were skipped. Re-run once logged in."
 fi
 log_warn "New extensions/applets need a Cinnamon restart: press Alt+F2, type 'r', Enter."
 log_warn "If a new Nemo action doesn't show up right away, run 'nemo -q'."
