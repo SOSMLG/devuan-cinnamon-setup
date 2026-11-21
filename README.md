@@ -1,70 +1,17 @@
+![banner](assets/banner.svg)
+
 # devuan-cinnamon-setup
 
-![Devuan](https://img.shields.io/badge/Devuan-supported-202329?logo=devuan&logoColor=E8A33D)
-![Cinnamon](https://img.shields.io/badge/Desktop-Cinnamon-202329?logo=linuxmint&logoColor=E8A33D)
-![OpenRC](https://img.shields.io/badge/Init-OpenRC-202329)
-![License: MIT](https://img.shields.io/badge/License-MIT-8FB57A.svg)
+takes an existing devuan cinnamon desktop past stock defaults with a graphite amber identity, a searchable launcher, hardened firefox esr and terminal ai agents, all on openrc.
 
-Post-install polish for a Devuan box where **Cinnamon is already installed**
-by the distro's own installer (`task-cinnamon-desktop`). This does *not*
-install Cinnamon — it takes a stock Devuan Cinnamon desktop past
-**LMDE "Gigi"-like** defaults (Mint-Y base, leaner package set, Timeshift
-safety net, cron-based update notifier instead of Mint's Update Manager)
-and into a **Graphite Amber** identity with ohmydebn-style power-user
-conveniences — a themed GTK update window, a searchable Super+M launcher,
-a zsh + starship + gnome-terminal stack, harden Firefox ESR, and
-terminal-AI agents on hand — all **native to Devuan's OpenRC** init, with
-no `systemctl` anywhere in the tree.
+[read the run steps](#quick-start)
 
-The toolkit is **fully unattended**: `install.sh` runs all ten steps
-straight through, answers yes to everything, and requires no key presses.
-Heavy/niche extras from the old lineup (gaming, PhotoGIMP, VSCodium+
-dev environment, LazyVim) were deliberately dropped and the original 33
-per-feature scripts were consolidated into 10 numbered steps, each still
-safe to run standalone.
-
-```
-devuan-cinnamon-setup/
-├── install.sh                    # one-command unattended installer
-├── run.sh                        # ordered runner — run this
-├── lib/
-│   ├── common.sh                 # shared log/ask/apt/service/gsettings helpers
-│   │                             #   (+ cinnamon_custom_binding, power helpers,
-│   │                             #    apt_update respecting DEBSWAY_SKIP_APT_UPDATE)
-│   ├── theme-apply.sh            # palette-driven app-theme appliers (gnome-terminal/btop/bat/eza/starship/fastfetch/nvim)
-│   ├── theme_render.py           # renders {{ key }} templating + derives ANSI/rgb from the palette TOML
-│   ├── install-spice.py          # fetches one verified Cinnamon Spice from its official repo
-│   ├── dconf-list-add.py         # idempotent "add to a dconf string-array" helper
-│   ├── dconf-list-remove.py      # idempotent "remove from a dconf string-array" helper
-│   ├── panel-applet-add.py       # adds a built-in/spice applet to the panel safely
-│   ├── set-panel-layout.py       # rebuilds the panel layout (launchers/quick-list/trash, drops dupes)
-│   ├── apply-burnmywindows-settings.py  # pre-writes Burn My Windows (Glide) settings.json
-│   └── apply-blur-cinnamon-settings.py  # pre-writes Blur Cinnamon settings.json
-├── config/
-│   ├── palette/graphite-amber.toml      # single source of truth: the semantic palette
-│   ├── templates/*.tpl                  # {{ key }}-templated themes: btop, starship, fastfetch
-│   ├── eza/theme.yml                    # Graphite Amber eza colorscheme
-│   ├── bat/themes/Graphite Amber.tmTheme     # bat/Graphite Amber syntax theme
-│   └── menu/devuan-menu.py              # the Super+M power-user launcher
-├── scripts/
-│   ├── 01-systemSetup.sh         # update everything, user groups, weekly SSD trim, Timeshift
-│   ├── 02-debloat.sh             # trim Warpinator/HexChat/GNOME extras/games, disable Tracker
-│   ├── 03-hardwareCodecs.sh      # firmware, CPU microcode, fwupd, media codecs, touchpad fixes
-│   ├── 04-theme.sh               # Mint-Y base + Graphite Amber desktop + app themes + picker
-│   ├── 05-cinnamonSetup.sh       # extensions, applets, hotkeys, polish, Nemo right-click actions
-│   ├── 06-cliStack.sh            # ButterBash, fonts, zsh+starship+gnome-terminal, fastfetch, dev extras
-│   ├── 07-apps.sh                # Flatpak center, printing, GParted, firewall, VLC, qBit, TLP, Vesktop, Telegram
-│   ├── 08-firefox.sh             # install + harden Firefox ESR (Betterfox + policies)
-│   ├── 09-updateSystem.sh        # cron update notifier + themed update GUI + Devuan Menu (Super+M) + first-run wizard
-│   ├── 10-aiAgents.sh            # OpenCode + VSCodium, Super+A, system skill file
-│   ├── verifySetup.sh            # end-state audit (run.sh --verify / install.sh default)
-│   ├── configBackup.sh           # snapshot/restore the per-user config (run.sh --backup)
-│   └── policies.json             # Firefox enterprise policy used by 08
-├── skills/
-│   └── devuan-cinnamon-SKILL.md  # system context file for AI coding agents
-├── butterbash/                   # bundled copy of butterbash-main, used offline
-└── README.md
-```
+| | |
+| --- | --- |
+| **steps** | ten numbered steps replace the old 33 per-feature scripts. each still runs standalone. |
+| **runner** | `./install.sh` runs all ten unattended. `./run.sh` asks before each step. |
+| **theme** | gtk apps, terminal and update window share one graphite amber palette. |
+| **init** | native to openrc. no systemctl in the tree. |
 
 ## Usage
 
@@ -92,7 +39,7 @@ backs up configs as `*.bak.<timestamp>` before writing).
 
 ## What each step does
 
-**01 System Setup** ★ — apt update + `full-upgrade` + autoremove; adds you
+**01 System Setup**  — apt update + `full-upgrade` + autoremove; adds you
 to `input`/`video`/`render`; weekly `fstrim` via cron (init-agnostic where
 `fstrim.timer` needs systemd); installs Timeshift (setup via its first-run
 wizard — disk choices are yours). Skips the apt refresh if
@@ -122,7 +69,7 @@ bat, eza, starship, fastfetch) from `config/palette/graphite-amber.toml` via
 + amber identity lives in the palette and app colorCustomizations. Persists
 the palette + `picker.colors` for the update GUI and menu.
 
-**05 Cinnamon Setup** ★ — verified Spices from the official
+**05 Cinnamon Setup**  — verified Spices from the official
 cinnamon-spices repos: Maximus (hide titlebar on maximize), Blur Cinnamon,
 gTile (Super+G), Burn My Windows (Glide effect, minimize/tile disabled),
 Color Picker applet, the weather + SpicesUpdate + transparency + quality-of-
@@ -162,7 +109,7 @@ de-brands the .desktop, and drops a `~/.local/bin` wrapper that re-applies
 the latest user.js on every launch. A separate `firefox` (latest) install,
 if present, is hardened too. `BETTERFOX_TAG` overrides the pinned tag.
 
-**09 Update System** ★ — a cron checker (09:00 + 18:00) that pops a
+**09 Update System**  — a cron checker (09:00 + 18:00) that pops a
 notification with a clickable **Update now** action (no systemd timers —
 cron is init-agnostic; DISPLAY/DBus are auto-detected at run time), the
 Graphite Amber themed GTK3 update window with an embedded VTE terminal that
@@ -174,7 +121,7 @@ power helpers) bound to Super+M — and a **first-run wizard** that greets a
 fresh install's user once, offering a first update + Timeshift setup
 (`~/.local/bin/devuan-first-run`, done-file gated).
 
-**10 AI Agents** ★ — [OpenCode](https://opencode.ai) (official installer,
+**10 AI Agents**  — [OpenCode](https://opencode.ai) (official installer,
 npm fallback) and VSCodium (official APT repo — telemetry-free VS Code,
 with a C++/Python toolchain + Graphite Amber theme) with their shells on
 PATH, `Super+A` → open a terminal running OpenCode, and the system
