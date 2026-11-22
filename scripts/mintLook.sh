@@ -118,22 +118,21 @@ if ask "Install a Mint-like cursor theme (Bibata, if available in your repos)?";
 fi
 
 # ---------------------------------------------------------------------------
-# 4. Wallpaper — generated locally (no download needed) in a Mint-Y-toned
-#    gradient, so this step never depends on network availability. Skips
-#    cleanly if ImageMagick isn't present rather than force-installing a
-#    whole new dependency just for a background image.
+# 4. Wallpaper — generated locally (no download needed) as a flat graphite
+#    image with one amber bar, so this step never depends on network
+#    availability. Skips cleanly if ImageMagick isn't present rather than
+#    force-installing a whole new dependency just for a background image.
 # ---------------------------------------------------------------------------
-WALLPAPER_PATH="$HOME/.local/share/backgrounds/devuan-cinnamon-mint-y.png"
-if ask "Generate a Mint-Y-toned wallpaper (local, no download — needs ImageMagick)?"; then
+WALLPAPER_PATH="$HOME/.local/share/backgrounds/devuan-cinnamon-graphite-amber.png"
+if ask "Generate a Graphite Amber wallpaper (local, no download — needs ImageMagick)?"; then
     if ! command_exists convert; then
         install_pkgs "ImageMagick" imagemagick
     fi
     if command_exists convert; then
         mkdir -p "$(dirname "$WALLPAPER_PATH")"
-        # Mint-Y's signature palette: dark charcoal fading to the Mint-Y green accent.
-        if convert -size 1920x1080 gradient:'#1c1e22'-'#2f4538' \
-            \( -size 1920x1080 xc:none -fill '#8bc34a' -draw "circle 1600,900 1900,900" -blur 0x200 \) \
-            -compose over -composite "$WALLPAPER_PATH" 2>/dev/null; then
+        if convert -size 1920x1080 xc:'#16181D' \
+            -fill '#E8A33D' -draw 'rectangle 0,0 1919,8' \
+            "$WALLPAPER_PATH" 2>/dev/null; then
             log_ok "Wallpaper generated at $WALLPAPER_PATH"
         else
             log_warn "ImageMagick composite failed — skipping wallpaper (cosmetic only)."
