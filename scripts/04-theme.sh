@@ -243,7 +243,6 @@ if [ -n "$PICKED_GTK" ] && [ "$HAVE_SESSION" -eq 1 ]; then
     else
         log_warn "'$PICKED_GTK' can't drive the Cinnamon shell - leaving shell + window borders untouched."
     fi
-    user_gsettings set org.cinnamon.desktop.interface color-scheme "prefer-dark" >/dev/null 2>&1
     user_gsettings set org.gnome.desktop.interface color-scheme "prefer-dark" >/dev/null 2>&1 || true
     user_gsettings set org.x.apps.portal color-scheme "prefer-dark" >/dev/null 2>&1 || true
     if [ -n "$PICKED_SHELL" ]; then

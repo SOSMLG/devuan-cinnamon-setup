@@ -13,7 +13,7 @@ takes an existing devuan cinnamon desktop past stock defaults with a graphite am
 | **theme** | gtk apps, terminal and update window share one graphite amber palette. |
 | **init** | native to openrc. no systemctl in the tree. |
 
-## Usage
+## Quick start
 
 ```bash
 cd devuan-cinnamon-setup

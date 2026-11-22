@@ -307,10 +307,10 @@ vscodium_dev_toolchain() {
     install_pkgs "Python toolchain (VSCodium)" python3 python3-pip python3-venv python3-dev
 }
 
-# Extensions: clangd family + Python family (no license-blocked cpptools/Pylance).
+# Extensions: clangd family + Open VSX-compatible Python tooling (no license-blocked cpptools).
 vscodium_install_extensions() {
     local ext
-    for ext in         llvm-vs-code-extensions.vscode-clangd         vadimcn.vscode-lldb         ms-vscode.cmake-tools         twxs.cmake         ms-python.python         ms-python.debugpy         ms-python.vscode-pylance; do
+    for ext in         llvm-vs-code-extensions.vscode-clangd         vadimcn.vscode-lldb         ms-vscode.cmake-tools         twxs.cmake         ms-python.python         ms-python.debugpy         detachhead.basedpyright; do
         command_exists codium && codium --install-extension "$ext" --force >/dev/null 2>&1
     done
 }
