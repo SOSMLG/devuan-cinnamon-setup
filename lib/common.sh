@@ -100,7 +100,7 @@ purge_if_installed() {
 }
 
 # Refresh apt package lists exactly once per run. Honors
-# DEBSWAY_SKIP_APT_UPDATE=1 (set automatically by run.sh/install.sh after the
+# DEBSWAY_SKIP_APT_UPDATE=1 (set automatically by install.sh/install.sh after the
 # first successful refresh so the remaining ~15 steps don't re-refresh).
 apt_update() {
     if [ "${DEBSWAY_SKIP_APT_UPDATE:-0}" = "1" ]; then
@@ -173,7 +173,7 @@ service_restart() {
     esac
 }
 
-ACTUAL_USER="${SUDO_USER:-$USER}"
+ACTUAL_USER="${SUDO_USER:-${USER:-$(id -un)}}"
 run_as_user() {
     if [ "$(id -un)" = "$ACTUAL_USER" ]; then
         "$@"

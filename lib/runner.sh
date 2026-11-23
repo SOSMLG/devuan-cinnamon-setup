@@ -13,20 +13,20 @@
 # the apps that 06+ finish wiring up).
 #
 # Usage:
-#   bash run.sh                # run everything
-#   bash run.sh --yes          # same as above (DEBSWAY_ASSUME_YES=1, default)
-#   bash run.sh --list         # just show the ordered steps
-#   bash run.sh --only 05      # run a single script by number
-#   bash run.sh --no-update    # skip apt-get update up front
-#   bash run.sh --verify       # run scripts/verifySetup.sh afterwards
-#   bash run.sh --backup       # run scripts/configBackup.sh first
+#   bash install.sh                # run everything
+#   bash install.sh --yes          # same as above (DEBSWAY_ASSUME_YES=1, default)
+#   bash install.sh --list         # just show the ordered steps
+#   bash install.sh --only 05      # run a single script by number
+#   bash install.sh --no-update    # skip apt-get update up front
+#   bash install.sh --verify       # run scripts/verifySetup.sh afterwards
+#   bash install.sh --backup       # run scripts/configBackup.sh first
 # ==========================================
 
 set -uo pipefail
 # NOTE: intentionally not using `set -e` - one script failing (say, a flaky
 # download in an installer step) shouldn't abort every later step. Each
 # script exits non-zero on failure so this runner can report it and carry on.
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SCRIPTS_DIR="$SCRIPT_DIR/scripts"
 
 # shellcheck source=lib/common.sh
@@ -37,7 +37,7 @@ source "$SCRIPT_DIR/lib/common.sh"
 # ~/.local/bin) must land in the real user's $HOME, not /root. Scripts call
 # sudo themselves for the parts that need it.
 if [ "$(id -u)" -eq 0 ] && [ -z "${SUDO_USER:-}" ]; then
-    echo -e "${RED}Please run this as your normal user, not as root / sudo bash run.sh.${NC}"
+    echo -e "${RED}Please run this as your normal user, not as root / sudo bash install.sh.${NC}"
     echo -e "${YELLOW}Each script will call sudo itself for the parts that need it.${NC}"
     exit 1
 fi
@@ -69,14 +69,17 @@ for arg in "$@"; do
 done
 
 # --- Distro check (Devuan or Debian; both ship /etc/debian_version) ---
-if [ -f /etc/devuan_version ]; then
-    echo -e "${GREEN}Devuan detected: $(cat /etc/devuan_version)${NC}"
-elif [ -f /etc/debian_version ]; then
-    echo -e "${YELLOW}Debian-based system detected: $(cat /etc/debian_version) (not Devuan - most of this should still work)${NC}"
-else
-    echo -e "${YELLOW}Warning: this toolkit targets Devuan/Debian. Your system may not be compatible.${NC}"
-    read -r -p "Continue anyway? (y/N): " continue_anyway
-    [[ "$continue_anyway" =~ ^[Yy]$ ]] || exit 1
+# --list is read-only and host-independent, so it skips the compatibility gate.
+if [ "$SHOW_LIST" -eq 0 ]; then
+    if [ -f /etc/devuan_version ]; then
+        echo -e "${GREEN}Devuan detected: $(cat /etc/devuan_version)${NC}"
+    elif [ -f /etc/debian_version ]; then
+        echo -e "${YELLOW}Debian-based system detected: $(cat /etc/debian_version) (not Devuan - most of this should still work)${NC}"
+    else
+        echo -e "${YELLOW}Warning: this toolkit targets Devuan/Debian. Your system may not be compatible.${NC}"
+        read -r -p "Continue anyway? (y/N): " continue_anyway
+        [[ "$continue_anyway" =~ ^[Yy]$ ]] || exit 1
+    fi
 fi
 
 # --- Init system check ---
@@ -124,7 +127,7 @@ if [ "$SHOW_LIST" -eq 1 ]; then
     echo -e "${BLUE}Devuan Cinnamon Setup - ordered steps:${NC}"
     show_list
     echo
-    echo -e "${YELLOW}Run everything with: bash run.sh${NC}"
+    echo -e "${YELLOW}Run everything with: bash install.sh${NC}"
     exit 0
 fi
 
@@ -135,7 +138,7 @@ STATE_LOG="$STATE_DIR/last-run.log"
 record_run() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$STATE_LOG"
 }
-record_run "run.sh start (flags: $*) init=$(init_system)"
+record_run "install.sh start (flags: $*) init=$(init_system)"
 
 FAILED=()
 
@@ -224,9 +227,9 @@ fi
 if [ "${#FAILED[@]}" -gt 0 ]; then
     echo -e "${RED}Failed:  ${FAILED[*]}${NC}"
     echo -e "${YELLOW}Re-run individual scripts with: bash scripts/<name>.sh${NC}"
-    record_run "run.sh end: FAILED=${FAILED[*]}"
+    record_run "install.sh end: FAILED=${FAILED[*]}"
     exit 1
 fi
 
-record_run "run.sh end: all OK"
+record_run "install.sh end: all OK"
 echo -e "${GREEN}Done. A logout/reboot is recommended (groups, theme, compositor, shell all benefit from a fresh session).${NC}"

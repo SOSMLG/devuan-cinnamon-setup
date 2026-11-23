@@ -36,4 +36,4 @@ done
 if [ "$NO_VERIFY" -eq 0 ]; then
     EXTRA+=(--verify)
 fi
-exec bash "$SCRIPT_DIR/run.sh" "${EXTRA[@]}"
+exec bash "$SCRIPT_DIR/lib/runner.sh" "${EXTRA[@]}"

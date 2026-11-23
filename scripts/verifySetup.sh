@@ -6,7 +6,7 @@
 # group membership, key packages, fonts, Firefox user.js,
 # enabled services, the Cinnamon spices this kit installs,
 # and the persistent palette marker. Designed to be run from
-# run.sh --verify after a run, or standalone at any time.
+# install.sh --verify after a run, or standalone at any time.
 #
 # Prints PASS/FAIL/WARN lines and exits non-zero if any
 # critical check failed, so it can gate CI/ISO validation.

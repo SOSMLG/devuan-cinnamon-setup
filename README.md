@@ -9,7 +9,7 @@ takes an existing devuan cinnamon desktop past stock defaults with a graphite am
 | | |
 | --- | --- |
 | **steps** | ten numbered steps replace the old 33 per-feature scripts. each still runs standalone. |
-| **runner** | `./install.sh` runs all ten unattended. `./run.sh` asks before each step. |
+| **runner** | `./install.sh` runs all ten unattended. `./install.sh` asks before each step. |
 | **theme** | gtk apps, terminal and update window share one graphite amber palette. |
 | **init** | native to openrc. no systemctl in the tree. |
 
@@ -20,12 +20,12 @@ cd devuan-cinnamon-setup
 bash install.sh          # everything, fully unattended (runs a verify pass at the end)
 bash install.sh --no-verify  # skip the end-state audit
 # or the runner directly:
-bash run.sh              # run all 10 steps (deterministic, no prompts)
-bash run.sh --list       # show the ordered steps
-bash run.sh --only 05    # run a single script by number
-bash run.sh --no-update  # skip the apt-get update up front
-bash run.sh --verify     # run scripts/verifySetup.sh (end-state audit) afterwards
-bash run.sh --backup     # snapshot current config via scripts/configBackup.sh first
+bash install.sh              # run all 10 steps (deterministic, no prompts)
+bash install.sh --list       # show the ordered steps
+bash install.sh --only 05    # run a single script by number
+bash install.sh --no-update  # skip the apt-get update up front
+bash install.sh --verify     # run scripts/verifySetup.sh (end-state audit) afterwards
+bash install.sh --backup     # snapshot current config via scripts/configBackup.sh first
 ```
 
 Run as your **normal user**, never `/root` and never `sudo bash ...`.
