@@ -55,7 +55,7 @@ remove_extension() {
     # from org.cinnamon enabled-extensions (idempotent).
     local uuid="$1" label="$2"
     if [ -d "$EXT_DIR/$uuid" ]; then
-        rm -rf "$EXT_DIR/$uuid"
+        rm -rf "${EXT_DIR:?}/${uuid:?}"
         log_ok "$label removed."
     else
         log_info "$label not present - nothing to remove."

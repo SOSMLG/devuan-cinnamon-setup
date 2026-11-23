@@ -4,7 +4,7 @@
 # -------------------------------------------------------
 # The "update everything before you start" step the essentials video
 # opens with. Deliberately its own script rather than baked silently
-# into run.sh's startup, so it's still just an ordinary y/N step you can
+# into install.sh's startup, so it's still just an ordinary y/N step you can
 # skip if you'd rather update later or on your own schedule.
 # =======================================================
 set -uo pipefail

@@ -6,7 +6,7 @@ missing desktop pieces, and applies a Graphite Amber identity.
 
 ## Entry points
 
-- `run.sh` runs a fixed ordered list of `scripts/[0-9][0-9]-*.sh` steps.
+- `install.sh` runs a fixed ordered list of `scripts/[0-9][0-9]-*.sh` steps.
 - `install.sh` is the unattended wrapper.
 - `scripts/verifySetup.sh` is the read-only end-state audit.
 
@@ -28,4 +28,4 @@ missing desktop pieces, and applies a Graphite Amber identity.
 
 - `bash -n` on changed shell files.
 - `bash scripts/verifySetup.sh` on a target system.
-- `bash run.sh --list` after adding or renaming a step.
+- `bash install.sh --list` after adding or renaming a step.

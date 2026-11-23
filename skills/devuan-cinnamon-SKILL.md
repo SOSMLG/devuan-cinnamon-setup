@@ -83,7 +83,7 @@ following in mind for any system-level help you give:
 ```
 devuan-cinnamon-setup/
 ├── install.sh              # one-command unattended installer (runs --verify at the end)
-├── run.sh                  # ordered runner: --list / --only N / --yes / --no-update / --verify / --backup
+├── install.sh                  # ordered runner: --list / --only N / --yes / --no-update / --verify / --backup
 ├── lib/                    # shared helpers (see "Init system" + "DEBSWAY_*" vars)
 │   ├── common.sh           # ask/log/apt_update/service/power/gsettings helpers (+ cinnamon_custom_binding)
 │   ├── theme-apply.sh      # palette-driven app-theme appliers
@@ -98,8 +98,8 @@ devuan-cinnamon-setup/
 ├── config/                 # palette, templates, eza/bat themes, menu app
 ├── scripts/                # ten numbered, independently runnable steps
 │   ├── 01-systemSetup.sh ... 10-aiAgents.sh
-│   ├── verifySetup.sh      # end-state audit (run.sh --verify)
-│   ├── configBackup.sh     # snapshot/restore per-user config (run.sh --backup)
+│   ├── verifySetup.sh      # end-state audit (install.sh --verify)
+│   ├── configBackup.sh     # snapshot/restore per-user config (install.sh --backup)
 │   └── policies.json       # Firefox enterprise policy used by 08
 ├── skills/                 # this file
 └── butterbash/             # bundled shell QoL layer
